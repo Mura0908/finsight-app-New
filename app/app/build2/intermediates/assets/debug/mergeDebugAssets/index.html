@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinSight - Budget Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with app name and navigation -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> FinSight</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-btn" data-tab="income">
+                        <i class="fas fa-wallet"></i>
+                        <span>Inkomsten</span>
+                    </button>
+                    <button class="nav-btn" data-tab="expenses">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Uitgaven</span>
+                    </button>
+                    <button class="nav-btn" data-tab="budgets">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>Budgetten</span>
+                    </button>
+                    <button class="nav-btn" data-tab="goals">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Doelen</span>
+                    </button>
+                    <button class="nav-btn" data-tab="debts">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Schulden</span>
+                    </button>
+                    <button class="nav-btn" data-tab="repayments">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Terugbetalingen</span>
+                    </button>
+                    <button class="nav-btn" data-tab="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Rapporten</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <div class="date-selector">
+                        <select id="dashboard-period">
+                            <option value="week">Deze week</option>
+                            <option value="month" selected>Deze maand</option>
+                            <option value="year">Dit jaar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Financial Summary Cards -->
+                <div class="summary-cards">
+                    <div class="card income-card">
+                        <div class="card-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Inkomsten</h3>
+                            <p id="total-income">€0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="card expense-card">
+                        <div class="card-icon">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Uitgaven</h3>
+                            <p id="total-expenses">€0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="card balance-card">
+                        <div class="card-icon">
+                            <i class="fas fa-euro-sign"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Saldo</h3>
+                            <p id="current-balance">€0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="card savings-card">
+                        <div class="card-icon">
+                            <i class="fas fa-piggy-bank"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Spaargeld</h3>
+                            <p id="total-savings">€0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <h3>Inkomsten vs Uitgaven</h3>
+                        <canvas id="income-expense-chart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h3>Uitgaven per categorie</h3>
+                        <canvas id="expense-category-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="recent-transactions">
+                    <h3>Recente transacties</h3>
+                    <div class="transactions-list" id="recent-transactions-list">
+                        <p class="no-data">Geen transacties gevonden</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Income Tab -->
+            <section id="income" class="tab-content">
+                <div class="section-header">
+                    <h2>Inkomsten beheren</h2>
+                    <button id="add-income-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuwe inkomst
+                    </button>
+                </div>
+
+                <div class="form-container" id="income-form-container">
+                    <form id="income-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="income-description">Beschrijving</label>
+                                <input type="text" id="income-description" placeholder="Bijv. Salaris, Freelance" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="income-amount">Bedrag (€)</label>
+                                <input type="number" id="income-amount" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="income-category">Categorie</label>
+                                <select id="income-category" required>
+                                    <option value="">Selecteer categorie</option>
+                                    <option value="salary">Salaris</option>
+                                    <option value="freelance">Freelance</option>
+                                    <option value="investment">Investeringen</option>
+                                    <option value="gift">Geschenken</option>
+                                    <option value="other">Overige</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="income-date">Datum</label>
+                                <input type="date" id="income-date" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="income-frequency">Frequentie</label>
+                                <select id="income-frequency">
+                                    <option value="once">Eenmalig</option>
+                                    <option value="weekly">Wekelijks</option>
+                                    <option value="monthly">Maandelijks</option>
+                                    <option value="yearly">Jaarlijks</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="income-source">Bron</label>
+                                <input type="text" id="income-source" placeholder="Bijv. Werkgever, Klant">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-income-btn" class="btn-secondary">Annuleren</button>
+                            <button type="submit" class="btn-primary">Inkomst toevoegen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="data-table-container">
+                    <h3>Inkomsten overzicht</h3>
+                    <table class="data-table" id="income-table">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Beschrijving</th>
+                                <th>Categorie</th>
+                                <th>Bron</th>
+                                <th>Bedrag</th>
+                                <th>Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody id="income-table-body">
+                            <tr>
+                                <td colspan="6" class="no-data">Geen inkomsten gevonden</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Expenses Tab -->
+            <section id="expenses" class="tab-content">
+                <div class="section-header">
+                    <h2>Uitgaven bijhouden</h2>
+                    <button id="add-expense-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuwe uitgave
+                    </button>
+                </div>
+
+                <div class="form-container" id="expense-form-container">
+                    <form id="expense-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expense-description">Beschrijving</label>
+                                <input type="text" id="expense-description" placeholder="Bijv. Boodschappen, Huur" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expense-amount">Bedrag (€)</label>
+                                <input type="number" id="expense-amount" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expense-category">Categorie</label>
+                                <select id="expense-category" required>
+                                    <option value="">Selecteer categorie</option>
+                                    <option value="groceries">Boodschappen</option>
+                                    <option value="rent">Huur</option>
+                                    <option value="utilities">Nutsvoorzieningen</option>
+                                    <option value="transport">Vervoer</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="healthcare">Gezondheidszorg</option>
+                                    <option value="education">Onderwijs</option>
+                                    <option value="other">Overige</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="expense-date">Datum</label>
+                                <input type="date" id="expense-date" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expense-payment-method">Betaalmethode</label>
+                                <select id="expense-payment-method">
+                                    <option value="cash">Contant</option>
+                                    <option value="card">Betaalpas</option>
+                                    <option value="transfer">Overschrijving</option>
+                                    <option value="other">Overige</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="expense-receipt">Bonnetje</label>
+                                <input type="file" id="expense-receipt" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-expense-btn" class="btn-secondary">Annuleren</button>
+                            <button type="submit" class="btn-primary">Uitgave toevoegen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="data-table-container">
+                    <h3>Uitgaven overzicht</h3>
+                    <table class="data-table" id="expense-table">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Beschrijving</th>
+                                <th>Categorie</th>
+                                <th>Methode</th>
+                                <th>Bedrag</th>
+                                <th>Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expense-table-body">
+                            <tr>
+                                <td colspan="6" class="no-data">Geen uitgaven gevonden</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Budgets Tab -->
+            <section id="budgets" class="tab-content">
+                <div class="section-header">
+                    <h2>Budgetten instellen</h2>
+                    <button id="add-budget-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuw budget
+                    </button>
+                </div>
+
+                <div class="form-container" id="budget-form-container">
+                    <form id="budget-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="budget-name">Budget naam</label>
+                                <input type="text" id="budget-name" placeholder="Bijv. Maandelijkse uitgaven" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="budget-amount">Budget limiet (€)</label>
+                                <input type="number" id="budget-amount" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="budget-category">Categorie</label>
+                                <select id="budget-category" required>
+                                    <option value="">Selecteer categorie</option>
+                                    <option value="groceries">Boodschappen</option>
+                                    <option value="rent">Huur</option>
+                                    <option value="utilities">Nutsvoorzieningen</option>
+                                    <option value="transport">Vervoer</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="healthcare">Gezondheidszorg</option>
+                                    <option value="education">Onderwijs</option>
+                                    <option value="other">Overige</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="budget-period">Periode</label>
+                                <select id="budget-period" required>
+                                    <option value="weekly">Wekelijks</option>
+                                    <option value="monthly" selected>Maandelijks</option>
+                                    <option value="yearly">Jaarlijks</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-budget-btn" class="btn-secondary">Annuleren</button>
+                            <button type="submit" class="btn-primary">Budget instellen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="budgets-list" id="budgets-list">
+                    <p class="no-data">Geen budgetten ingesteld</p>
+                </div>
+            </section>
+
+            <!-- Goals Tab -->
+            <section id="goals" class="tab-content">
+                <div class="section-header">
+                    <h2>Spaardoelen</h2>
+                    <button id="add-goal-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuw doel
+                    </button>
+                </div>
+
+                <div class="form-container" id="goal-form-container">
+                    <form id="goal-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="goal-name">Doel naam</label>
+                                <input type="text" id="goal-name" placeholder="Bijv. Vakantie, Noodfonds" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="goal-target">Doelbedrag (€)</label>
+                                <input type="number" id="goal-target" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="goal-deadline">Deadline</label>
+                                <input type="date" id="goal-deadline" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="goal-monthly-amount">Maandelijks bedrag (€)</label>
+                                <input type="number" id="goal-monthly-amount" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="goal-description">Beschrijving</label>
+                            <textarea id="goal-description" placeholder="Beschrijf je doel..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-goal-btn" class="btn-secondary">Annuleren</button>
+                            <button type="submit" class="btn-primary">Doel instellen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="goals-list" id="goals-list">
+                    <p class="no-data">Geen spaardoelen ingesteld</p>
+                </div>
+            </section>
+
+            <!-- Debts Tab -->
+            <section id="debts" class="tab-content">
+                <div class="section-header">
+                    <h2>Schuldenbeheer</h2>
+                    <button id="add-debt-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuwe schuld
+                    </button>
+                </div>
+
+                <div class="form-container" id="debt-form-container">
+                    <form id="debt-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="debt-name">Schuld naam</label>
+                                <input type="text" id="debt-name" placeholder="Bijv. Studielening, Creditcard" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="debt-amount">Totaalbedrag (€)</label>
+                                <input type="number" id="debt-amount" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="debt-creditor">Crediteur</label>
+                                <input type="text" id="debt-creditor" placeholder="Bijv. Bank, Persoon" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="debt-interest">Rente (%)</label>
+                                <input type="number" id="debt-interest" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="debt-start-date">Startdatum</label>
+                                <input type="date" id="debt-start-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="debt-end-date">Einddatum</label>
+                                <input type="date" id="debt-end-date">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="debt-monthly-payment">Maandelijkse afbetaling (€)</label>
+                            <input type="number" id="debt-monthly-payment" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-debt-btn" class="btn-secondary">Annuleren</button>
+                            <button type="submit" class="btn-primary">Schuld toevoegen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="debts-list" id="debts-list">
+                    <p class="no-data">Geen schulden geregistreerd</p>
+                </div>
+            </section>
+
+            <!-- Repayments Tab (Secure Section) -->
+            <section id="repayments" class="tab-content">
+                <div class="section-header">
+                    <h2>Terugbetalingen aan Vrienden/Familie</h2>
+                    <button id="add-repayment-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuwe terugbetaling
+                    </button>
+                </div>
+
+                <!-- Password Protection -->
+                <div class="password-protection" id="repayment-password-section">
+                    <div class="form-container">
+                        <h3>Beveiligde sectie - Voer wachtwoord in</h3>
+                        <div class="form-group">
+                            <label for="repayment-password">Wachtwoord</label>
+                            <input type="password" id="repayment-password" placeholder="Voer uw wachtwoord in">
+                        </div>
+                        <div class="form-group">
+                            <label for="repayment-password-setup" id="password-setup-label">Stel wachtwoord in (indien nieuw)</label>
+                            <input type="password" id="repayment-password-setup" placeholder="Stel uw wachtwoord in">
+                        </div>
+                        <button id="repayment-password-btn" class="btn-primary">Toegang verkrijgen</button>
+                    </div>
+                </div>
+
+                <!-- Repayment Form (Hidden until password is entered) -->
+                <div class="form-container" id="repayment-form-container">
+                    <form id="repayment-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="repayment-person">Naam persoon</label>
+                                <input type="text" id="repayment-person" placeholder="Bijv. Jan Jansen" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="repayment-amount">Bedrag (€)</label>
+                                <input type="number" id="repayment-amount" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="repayment-date">Datum</label>
+                                <input type="date" id="repayment-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="repayment-type">Type</label>
+                                <select id="repayment-type" required>
+                                    <option value="owed-to-me">Schuld aan mij</option>
+                                    <option value="owed-by-me">Schuld van mij</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="repayment-description">Beschrijving</label>
+                            <textarea id="repayment-description" placeholder="Bijv. Geleend voor vakantie, Terugbetaling voor diner"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-repayment-btn" class="btn-secondary">Annuleren</button>
+                            <button type="submit" class="btn-primary">Terugbetaling registreren</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Repayments List (Hidden until password is entered) -->
+                <div class="repayments-list" id="repayments-list">
+                    <p class="no-data">Geen terugbetalingen geregistreerd</p>
+                </div>
+            </section>
+
+            <!-- Reports Tab -->
+            <section id="reports" class="tab-content">
+                <div class="section-header">
+                    <h2>Analyse en rapporten</h2>
+                    <div class="report-controls">
+                        <select id="report-period">
+                            <option value="month">Deze maand</option>
+                            <option value="quarter">Dit kwartaal</option>
+                            <option value="year" selected>Dit jaar</option>
+                        </select>
+                        <button id="generate-report-btn" class="btn-primary">
+                            <i class="fas fa-download"></i> Rapport exporteren
+                        </button>
+                    </div>
+                </div>
+
+                <div class="reports-container">
+                    <div class="report-card">
+                        <h3>Financieel overzicht</h3>
+                        <div class="report-content">
+                            <p>Totaal inkomsten: <span id="report-total-income">€0.00</span></p>
+                            <p>Totaal uitgaven: <span id="report-total-expenses">€0.00</span></p>
+                            <p>Netto resultaat: <span id="report-net-result">€0.00</span></p>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <h3>Uitgaven analyse</h3>
+                        <div class="report-content">
+                            <p>Hoogste uitgavencategorie: <span id="highest-expense-category">-</span></p>
+                            <p>Gemiddelde maandelijkse uitgaven: <span id="avg-monthly-expenses">€0.00</span></p>
+                            <p>Meest voorkomende uitgaven: <span id="most-common-expenses">-</span></p>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <h3>Budget naleving</h3>
+                        <div class="report-content">
+                            <p>Budgetten binnen limiet: <span id="budgets-within-limit">0</span></p>
+                            <p>Budgetten overschreden: <span id="budgets-exceeded">0</span></p>
+                            <p>Gemiddelde budgetnaleving: <span id="avg-budget-compliance">0%</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper full-width">
+                    <h3>Financiële trendanalyse</h3>
+                    <canvas id="trend-analysis-chart"></canvas>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p>&copy; 2023 FinSight - Jouw financiële inzicht</p>
+                <div class="footer-links">
+                    <a href="#" id="settings-link">Instellingen</a>
+                    <a href="#" id="help-link">Help</a>
+                    <a href="#" id="privacy-link">Privacy</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
