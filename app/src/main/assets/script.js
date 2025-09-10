@@ -85,6 +85,19 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('App initialization completed');
 });
 
+// Initialize the app
+function initializeApp() {
+    // Set default dates
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('income-date').value = today;
+    document.getElementById('expense-date').value = today;
+    document.getElementById('budget-form').querySelector('#budget-period').value = 'monthly';
+    
+    // Set min date for goals and debts
+    document.getElementById('goal-deadline').min = today;
+    document.getElementById('debt-start-date').value = today;
+}
+
 // Set up event listeners
 function setupEventListeners() {
     console.log('Setting up event listeners');
@@ -104,21 +117,6 @@ function setupEventListeners() {
     // Form toggles
     addIncomeBtn.addEventListener('click', () => toggleForm(incomeFormContainer));
     addExpenseBtn.addEventListener('click', () => toggleForm(expenseFormContainer));
-}
-
-// Initialize the app
-function initializeApp() {
-    // Set default dates
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('income-date').value = today;
-    document.getElementById('expense-date').value = today;
-    document.getElementById('budget-form').querySelector('#budget-period').value = 'monthly';
-    
-    // Set min date for goals and debts
-    document.getElementById('goal-deadline').min = today;
-    document.getElementById('debt-start-date').value = today;
-}
-
     addBudgetBtn.addEventListener('click', () => toggleForm(budgetFormContainer));
     addGoalBtn.addEventListener('click', () => toggleForm(goalFormContainer));
     addDebtBtn.addEventListener('click', () => toggleForm(debtFormContainer));
@@ -214,6 +212,9 @@ function handleCategorySubmit(e) {
     
     // Reset form and hide it
     categoryForm.reset();
+    toggleForm(categoryFormContainer);
+}
+
     toggleForm(categoryFormContainer);
 }
 
