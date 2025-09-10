@@ -27,6 +27,9 @@ let categories = {
     ]
 };
 
+// Add new array for month closures
+let monthClosures = [];
+
 // DOM Elements
 const tabButtons = document.querySelectorAll('.nav-btn');
 const tabContents = document.querySelectorAll('.tab-content');
@@ -135,6 +138,34 @@ function setupEventListeners() {
     
     // Report period selector
     document.getElementById('report-period').addEventListener('change', updateReports);
+    
+    // Search and filter event listeners
+    const incomeSearch = document.getElementById('income-search');
+    const incomeCategoryFilter = document.getElementById('income-category-filter');
+    const expenseSearch = document.getElementById('expense-search');
+    const expenseCategoryFilter = document.getElementById('expense-category-filter');
+    
+    if (incomeSearch) {
+        incomeSearch.addEventListener('input', updateIncomeTable);
+    }
+    
+    if (incomeCategoryFilter) {
+        incomeCategoryFilter.addEventListener('change', updateIncomeTable);
+    }
+    
+    if (expenseSearch) {
+        expenseSearch.addEventListener('input', updateExpenseTable);
+    }
+    
+    if (expenseCategoryFilter) {
+        expenseCategoryFilter.addEventListener('change', updateExpenseTable);
+    }
+    
+    // Month closure button
+    const closeMonthBtn = document.getElementById('close-month-btn');
+    if (closeMonthBtn) {
+        closeMonthBtn.addEventListener('click', closeCurrentMonth);
+    }
 }
 
 // Handle category form submission
@@ -579,7 +610,12 @@ function handleExpenseSubmit(e) {
         amount: parseFloat(document.getElementById('expense-amount').value),
         category: document.getElementById('expense-category').value,
         date: document.getElementById('expense-date').value,
-        paymentMethod: document.getElementById('expense-payment-method').value
+        paymentMethod: document.getElementById('expense-payment-method').value,
+        // Add payment status (default to 'open')
+        paymentStatus: 'open', // 'open' or 'paid'
+        // Add month/year for tracking
+        month: new Date(document.getElementById('expense-date').value).getMonth(),
+        year: new Date(document.getElementById('expense-date').value).getFullYear()
     };
     
     expenses.push(expense);
@@ -754,7 +790,7 @@ function closeAllForms() {
     repaymentFormContainer.classList.remove('active');
 }
 
-// Update income table
+// Update income table with search and filter functionality
 function updateIncomeTable() {
     const tbody = document.getElementById('income-table-body');
     
@@ -763,8 +799,35 @@ function updateIncomeTable() {
         return;
     }
     
+    // Get search and filter values
+    const searchInput = document.getElementById('income-search');
+    const categoryFilter = document.getElementById('income-category-filter');
+    
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const categoryFilterValue = categoryFilter ? categoryFilter.value : '';
+    
+    // Filter incomes based on search and category
+    let filteredIncomes = [...incomes];
+    
+    if (searchTerm) {
+        filteredIncomes = filteredIncomes.filter(income => 
+            income.description.toLowerCase().includes(searchTerm) ||
+            getCategoryName(income.category).toLowerCase().includes(searchTerm) ||
+            (income.source && income.source.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    if (categoryFilterValue) {
+        filteredIncomes = filteredIncomes.filter(income => income.category === categoryFilterValue);
+    }
+    
     // Sort incomes by date (newest first)
-    const sortedIncomes = [...incomes].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const sortedIncomes = filteredIncomes.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    if (sortedIncomes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">Geen inkomsten gevonden</td></tr>';
+        return;
+    }
     
     tbody.innerHTML = '';
     sortedIncomes.forEach(income => {
@@ -784,20 +847,51 @@ function updateIncomeTable() {
     });
 }
 
-// Update expense table
+// Update expense table with search and filter functionality
 function updateExpenseTable() {
     const tbody = document.getElementById('expense-table-body');
     
     if (expenses.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="no-data">Geen uitgaven gevonden</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">Geen uitgaven gevonden</td></tr>';
         return;
     }
     
+    // Get search and filter values
+    const searchInput = document.getElementById('expense-search');
+    const categoryFilter = document.getElementById('expense-category-filter');
+    
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const categoryFilterValue = categoryFilter ? categoryFilter.value : '';
+    
+    // Filter expenses based on search and category
+    let filteredExpenses = [...expenses];
+    
+    if (searchTerm) {
+        filteredExpenses = filteredExpenses.filter(expense => 
+            expense.description.toLowerCase().includes(searchTerm) ||
+            getCategoryName(expense.category).toLowerCase().includes(searchTerm) ||
+            getPaymentMethodName(expense.paymentMethod).toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    if (categoryFilterValue) {
+        filteredExpenses = filteredExpenses.filter(expense => expense.category === categoryFilterValue);
+    }
+    
     // Sort expenses by date (newest first)
-    const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const sortedExpenses = filteredExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    if (sortedExpenses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">Geen uitgaven gevonden</td></tr>';
+        return;
+    }
     
     tbody.innerHTML = '';
     sortedExpenses.forEach(expense => {
+        // Determine status class
+        const statusClass = expense.paymentStatus === 'paid' ? 'status-paid' : 'status-open';
+        const statusText = expense.paymentStatus === 'paid' ? 'Betaald' : 'Open';
+        
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${formatDate(expense.date)}</td>
@@ -805,9 +899,13 @@ function updateExpenseTable() {
             <td>${getCategoryName(expense.category)}</td>
             <td>${getPaymentMethodName(expense.paymentMethod)}</td>
             <td>€${expense.amount.toFixed(2)}</td>
+            <td class="${statusClass}">${statusText}</td>
             <td>
                 <button class="edit-btn" onclick="editExpense(${expense.id})"><i class="fas fa-edit"></i></button>
                 <button class="delete-btn" onclick="deleteExpense(${expense.id})"><i class="fas fa-trash"></i></button>
+                ${expense.paymentStatus === 'open' ? 
+                    `<button class="pay-btn" onclick="markExpenseAsPaid(${expense.id})"><i class="fas fa-check"></i></button>` : 
+                    ''}
             </td>
         `;
         tbody.appendChild(row);
@@ -823,6 +921,8 @@ function updateBudgetsList() {
         return;
     }
     
+}
+
     container.innerHTML = '';
     budgets.forEach(budget => {
         const percentage = Math.min(100, (budget.used / budget.amount) * 100);
@@ -845,6 +945,684 @@ function updateBudgetsList() {
             </div>
             <div class="budget-actions">
                 <button class="edit-btn" onclick="editBudget(${budget.id})"><i class="fas fa-edit"></i> Bewerken</button>
+                <button class="delete-btn" onclick="deleteBudget(${budget.id})"><i class="fas fa-trash"></i> Verwijderen</button>
+            </div>
+        `;
+        container.appendChild(budgetCard);
+    });
+}
+
+// Update goals list
+function updateGoalsList() {
+    const container = document.getElementById('goals-list');
+    
+    if (goals.length === 0) {
+        container.innerHTML = '<p class="no-data">Geen doelen ingesteld</p>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    goals.forEach(goal => {
+        const percentage = Math.min(100, (goal.saved / goal.target) * 100);
+        const progressBarClass = percentage < 70 ? 'safe' : percentage < 90 ? 'warning' : 'danger';
+        const remaining = goal.target - goal.saved;
+        
+        const goalCard = document.createElement('div');
+        goalCard.className = 'goal-card';
+        goalCard.innerHTML = `
+            <div class="goal-header">
+                <h3>${goal.name}</h3>
+                <span class="goal-status">${percentage >= 100 ? 'Bereikt' : 'Openstaand'}</span>
+            </div>
+            <div class="goal-amount">€${goal.saved.toFixed(2)} / €${goal.target.toFixed(2)}</div>
+            <div class="goal-progress">
+                <div class="goal-progress-bar ${progressBarClass}" style="width: ${percentage}%"></div>
+            </div>
+            <div class="goal-details">
+                <span>${percentage.toFixed(1)}% bereikt</span>
+                <span>${goal.monthlyAmount ? `€${goal.monthlyAmount.toFixed(2)} per maand` : ''}</span>
+            </div>
+            <div class="goal-description">${goal.description}</div>
+            <div class="goal-actions">
+                <button class="edit-btn" onclick="editGoal(${goal.id})"><i class="fas fa-edit"></i> Bewerken</button>
+                <button class="delete-btn" onclick="deleteGoal(${goal.id})"><i class="fas fa-trash"></i> Verwijderen</button>
+            </div>
+        `;
+        container.appendChild(goalCard);
+    });
+}
+
+// Update dashboard with total incomes, expenses, savings, debts, and net worth
+function updateDashboard() {
+    const totalIncome = incomes.reduce((total, income) => total + income.amount, 0);
+    const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
+    const totalBudgets = budgets.reduce((total, budget) => total + budget.used, 0);
+    const totalGoals = goals.reduce((total, goal) => total + goal.saved, 0);
+    const totalDebts = debts.reduce((total, debt) => total + debt.amount, 0);
+    const totalRepayments = repayments.reduce((total, repayment) => total + repayment.amount, 0);
+    const netWorth = totalIncome - totalExpenses - totalDebts + totalRepayments;
+    
+    document.getElementById('total-income').textContent = `€${totalIncome.toFixed(2)}`;
+    document.getElementById('total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
+    document.getElementById('total-budgets').textContent = `€${totalBudgets.toFixed(2)}`;
+    document.getElementById('total-goals').textContent = `€${totalGoals.toFixed(2)}`;
+    document.getElementById('total-debts').textContent = `€${totalDebts.toFixed(2)}`;
+    document.getElementById('total-repayments').textContent = `€${totalRepayments.toFixed(2)}`;
+    document.getElementById('net-worth').textContent = `€${netWorth.toFixed(2)}`;
+}
+
+// Update reports with income, expense, budget, goal, debt, and repayment data
+function updateReports() {
+    const period = document.getElementById('report-period').value;
+    const startDate = new Date(document.getElementById('report-start-date').value);
+    const endDate = new Date(document.getElementById('report-end-date').value);
+    
+    // Filter data based on period and date range
+    const filteredIncomes = incomes.filter(income => {
+        const incomeDate = new Date(income.date);
+        return (period === 'custom' && incomeDate >= startDate && incomeDate <= endDate) ||
+               (period === 'yearly' && incomeDate.getFullYear() === startDate.getFullYear()) ||
+               (period === 'monthly' && incomeDate.getFullYear() === startDate.getFullYear() && incomeDate.getMonth() === startDate.getMonth()) ||
+               (period === 'weekly' && incomeDate.getFullYear() === startDate.getFullYear() && incomeDate.getMonth() === startDate.getMonth() && incomeDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && incomeDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
+    });
+    
+    const filteredExpenses = expenses.filter(expense => {
+        const expenseDate = new Date(expense.date);
+        return (period === 'custom' && expenseDate >= startDate && expenseDate <= endDate) ||
+               (period === 'yearly' && expenseDate.getFullYear() === startDate.getFullYear()) ||
+               (period === 'monthly' && expenseDate.getFullYear() === startDate.getFullYear() && expenseDate.getMonth() === startDate.getMonth()) ||
+               (period === 'weekly' && expenseDate.getFullYear() === startDate.getFullYear() && expenseDate.getMonth() === startDate.getMonth() && expenseDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && expenseDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
+    });
+    
+    const filteredBudgets = budgets.filter(budget => {
+        const budgetDate = new Date();
+        return (period === 'custom' && budgetDate >= startDate && budgetDate <= endDate) ||
+               (period === 'yearly' && budgetDate.getFullYear() === startDate.getFullYear()) ||
+               (period === 'monthly' && budgetDate.getFullYear() === startDate.getFullYear() && budgetDate.getMonth() === startDate.getMonth()) ||
+               (period === 'weekly' && budgetDate.getFullYear() === startDate.getFullYear() && budgetDate.getMonth() === startDate.getMonth() && budgetDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && budgetDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
+    });
+    
+    const filteredGoals = goals.filter(goal => {
+        const goalDate = new Date();
+        return (period === 'custom' && goalDate >= startDate && goalDate <= endDate) ||
+               (period === 'yearly' && goalDate.getFullYear() === startDate.getFullYear()) ||
+               (period === 'monthly' && goalDate.getFullYear() === startDate.getFullYear() && goalDate.getMonth() === startDate.getMonth()) ||
+               (period === 'weekly' && goalDate.getFullYear() === startDate.getFullYear() && goalDate.getMonth() === startDate.getMonth() && goalDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && goalDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
+    });
+    
+    const filteredDebts = debts.filter(debt => {
+        const debtDate = new Date(debt.startDate);
+        return (period === 'custom' && debtDate >= startDate && debtDate <= endDate) ||
+               (period === 'yearly' && debtDate.getFullYear() === startDate.getFullYear()) ||
+               (period === 'monthly' && debtDate.getFullYear() === startDate.getFullYear() && debtDate.getMonth() === startDate.getMonth()) ||
+               (period === 'weekly' && debtDate.getFullYear() === startDate.getFullYear() && debtDate.getMonth() === startDate.getMonth() && debtDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && debtDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
+    });
+    
+    const filteredRepayments = repayments.filter(repayment => {
+        const repaymentDate = new Date(repayment.date);
+        return (period === 'custom' && repaymentDate >= startDate && repaymentDate <= endDate) ||
+               (period === 'yearly' && repaymentDate.getFullYear() === startDate.getFullYear()) ||
+               (period === 'monthly' && repaymentDate.getFullYear() === startDate.getFullYear() && repaymentDate.getMonth() === startDate.getMonth()) ||
+               (period === 'weekly' && repaymentDate.getFullYear() === startDate.getFullYear() && repaymentDate.getMonth() === startDate.getMonth() && repaymentDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && repaymentDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
+    });
+    
+    // Calculate totals for the filtered data
+    const totalIncome = filteredIncomes.reduce((total, income) => total + income.amount, 0);
+    const totalExpenses = filteredExpenses.reduce((total, expense) => total + expense.amount, 0);
+    const totalBudgets = filteredBudgets.reduce((total, budget) => total + budget.used, 0);
+    const totalGoals = filteredGoals.reduce((total, goal) => total + goal.saved, 0);
+    const totalDebts = filteredDebts.reduce((total, debt) => total + debt.amount, 0);
+    const totalRepayments = filteredRepayments.reduce((total, repayment) => total + repayment.amount, 0);
+    const netWorth = totalIncome - totalExpenses - totalDebts + totalRepayments;
+    
+    // Update the report section with the calculated totals
+    document.getElementById('report-total-income').textContent = `€${totalIncome.toFixed(2)}`;
+    document.getElementById('report-total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
+    document.getElementById('report-total-budgets').textContent = `€${totalBudgets.toFixed(2)}`;
+    document.getElementById('report-total-goals').textContent = `€${totalGoals.toFixed(2)}`;
+    document.getElementById('report-total-debts').textContent = `€${totalDebts.toFixed(2)}`;
+    document.getElementById('report-total-repayments').textContent = `€${totalRepayments.toFixed(2)}`;
+    document.getElementById('report-net-worth').textContent = `€${netWorth.toFixed(2)}`;
+}
+
+// Edit income
+function editIncome(id) {
+    const income = incomes.find(income => income.id === id);
+    if (!income) return;
+    
+    // Show the income form
+    toggleForm(incomeFormContainer);
+    
+    // Fill the form with income data
+    document.getElementById('income-description').value = income.description;
+    document.getElementById('income-amount').value = income.amount;
+    document.getElementById('income-category').value = income.category;
+    document.getElementById('income-date').value = income.date;
+    document.getElementById('income-frequency').value = income.frequency;
+    document.getElementById('income-source').value = income.source || '';
+    
+    // Store the original ID for updating
+    incomeForm.dataset.editingId = id;
+    
+    // Change form submit handler to update instead of add
+    incomeForm.onsubmit = function(e) {
+        e.preventDefault();
+        
+        // Get the editing ID
+        const editingId = incomeForm.dataset.editingId;
+        
+        // Find the income to update
+        const incomeToUpdate = incomes.find(income => income.id === editingId);
+        if (!incomeToUpdate) return;
+        
+        // Get updated values
+        const newDescription = document.getElementById('income-description').value;
+        const newAmount = parseFloat(document.getElementById('income-amount').value);
+        const newCategory = document.getElementById('income-category').value;
+        const newDate = document.getElementById('income-date').value;
+        const newFrequency = document.getElementById('income-frequency').value;
+        const newSource = document.getElementById('income-source').value;
+        
+        // Update income data
+        incomeToUpdate.description = newDescription;
+        incomeToUpdate.amount = newAmount;
+        incomeToUpdate.category = newCategory;
+        incomeToUpdate.date = newDate;
+        incomeToUpdate.frequency = newFrequency;
+        incomeToUpdate.source = newSource;
+        
+        saveToLocalStorage();
+        updateIncomeTable();
+        updateDashboard();
+        
+        // Reset form and hide it
+        incomeForm.reset();
+        document.getElementById('income-date').value = new Date().toISOString().split('T')[0];
+        delete incomeForm.dataset.editingId;
+        toggleForm(incomeFormContainer);
+        
+        // Restore original submit handler
+        incomeForm.onsubmit = handleIncomeSubmit;
+    };
+}
+
+// Edit expense
+function editExpense(id) {
+    const expense = expenses.find(expense => expense.id === id);
+    if (!expense) return;
+    
+    // Show the expense form
+    toggleForm(expenseFormContainer);
+    
+    // Fill the form with expense data
+    document.getElementById('expense-description').value = expense.description;
+    document.getElementById('expense-amount').value = expense.amount;
+    document.getElementById('expense-category').value = expense.category;
+    document.getElementById('expense-date').value = expense.date;
+    document.getElementById('expense-payment-method').value = expense.paymentMethod;
+    
+    // Store the original ID for updating
+    expenseForm.dataset.editingId = id;
+    
+    // Change form submit handler to update instead of add
+    expenseForm.onsubmit = function(e) {
+        e.preventDefault();
+        
+        // Get the editing ID
+        const editingId = expenseForm.dataset.editingId;
+        
+        // Find the expense to update
+        const expenseToUpdate = expenses.find(expense => expense.id === editingId);
+        if (!expenseToUpdate) return;
+        
+        // Get updated values
+        const newDescription = document.getElementById('expense-description').value;
+        const newAmount = parseFloat(document.getElementById('expense-amount').value);
+        const newCategory = document.getElementById('expense-category').value;
+        const newDate = document.getElementById('expense-date').value;
+        const newPaymentMethod = document.getElementById('expense-payment-method').value;
+        
+        // Update expense data
+        expenseToUpdate.description = newDescription;
+        expenseToUpdate.amount = newAmount;
+        expenseToUpdate.category = newCategory;
+        expenseToUpdate.date = newDate;
+        expenseToUpdate.paymentMethod = newPaymentMethod;
+        
+        saveToLocalStorage();
+        updateExpenseTable();
+        updateDashboard();
+        
+        // Reset form and hide it
+        expenseForm.reset();
+        document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
+        delete expenseForm.dataset.editingId;
+        toggleForm(expenseFormContainer);
+        
+        // Restore original submit handler
+        expenseForm.onsubmit = handleExpenseSubmit;
+    };
+}
+
+// Edit budget
+function editBudget(id) {
+    const budget = budgets.find(budget => budget.id === id);
+    if (!budget) return;
+    
+    // Show the budget form
+    toggleForm(budgetFormContainer);
+    
+    // Fill the form with budget data
+    document.getElementById('budget-name').value = budget.name;
+    document.getElementById('budget-amount').value = budget.amount;
+    document.getElementById('budget-category').value = budget.category;
+    document.getElementById('budget-period').value = budget.period;
+    
+    // Store the original ID for updating
+    budgetForm.dataset.editingId = id;
+    
+    // Change form submit handler to update instead of add
+    budgetForm.onsubmit = function(e) {
+        e.preventDefault();
+        
+        // Get the editing ID
+        const editingId = budgetForm.dataset.editingId;
+        
+        // Find the budget to update
+        const budgetToUpdate = budgets.find(budget => budget.id === editingId);
+        if (!budgetToUpdate) return;
+        
+        // Get updated values
+        const newName = document.getElementById('budget-name').value;
+        const newAmount = parseFloat(document.getElementById('budget-amount').value);
+        const newCategory = document.getElementById('budget-category').value;
+        const newPeriod = document.getElementById('budget-period').value;
+        
+        // Update budget data
+        budgetToUpdate.name = newName;
+        budgetToUpdate.amount = newAmount;
+        budgetToUpdate.category = newCategory;
+        budgetToUpdate.period = newPeriod;
+        
+        // Recalculate used amount based on existing expenses in this category
+        const categoryExpenses = expenses.filter(expense => expense.category === budgetToUpdate.category);
+        budgetToUpdate.used = categoryExpenses.reduce((total, expense) => total + expense.amount, 0);
+        
+        saveToLocalStorage();
+        updateBudgetsList();
+        updateDashboard();
+        
+        // Reset form and hide it
+        budgetForm.reset();
+        delete budgetForm.dataset.editingId;
+        toggleForm(budgetFormContainer);
+        
+        // Restore original submit handler
+        budgetForm.onsubmit = handleBudgetSubmit;
+    };
+}
+
+// Edit goal
+function editGoal(id) {
+    const goal = goals.find(goal => goal.id === id);
+    if (!goal) return;
+    
+    // Show the goal form
+    toggleForm(goalFormContainer);
+    
+    // Fill the form with goal data
+    document.getElementById('goal-name').value = goal.name;
+    document.getElementById('goal-target').value = goal.target;
+    document.getElementById('goal-deadline').value = goal.deadline;
+    document.getElementById('goal-monthly-amount').value = goal.monthlyAmount;
+    document.getElementById('goal-description').value = goal.description;
+    
+    // Store the original ID for updating
+    goalForm.dataset.editingId = id;
+    
+    // Change form submit handler to update instead of add
+    goalForm.onsubmit = function(e) {
+        e.preventDefault();
+        
+        // Get the editing ID
+        const editingId = goalForm.dataset.editingId;
+        
+        // Find the goal to update
+        const goalToUpdate = goals.find(goal => goal.id === editingId);
+        if (!goalToUpdate) return;
+        
+        // Get updated values
+        const newName = document.getElementById('goal-name').value;
+        const newTarget = parseFloat(document.getElementById('goal-target').value);
+        const newDeadline = document.getElementById('goal-deadline').value;
+        const newMonthlyAmount = parseFloat(document.getElementById('goal-monthly-amount').value) || 0;
+        const newDescription = document.getElementById('goal-description').value;
+        
+        // Update goal data
+        goalToUpdate.name = newName;
+        goalToUpdate.target = newTarget;
+        goalToUpdate.deadline = newDeadline;
+        goalToUpdate.monthlyAmount = newMonthlyAmount;
+        goalToUpdate.description = newDescription;
+        
+        saveToLocalStorage();
+        updateGoalsList();
+        updateDashboard();
+        
+        // Reset form and hide it
+        goalForm.reset();
+        delete goalForm.dataset.editingId;
+        toggleForm(goalFormContainer);
+        
+        // Restore original submit handler
+        goalForm.onsubmit = handleGoalSubmit;
+    };
+}
+
+// Edit debt
+function editDebt(id) {
+    const debt = debts.find(debt => debt.id === id);
+    if (!debt) return;
+    
+    // Show the debt form
+    toggleForm(debtFormContainer);
+    
+    // Fill the form with debt data
+    document.getElementById('debt-name').value = debt.name;
+    document.getElementById('debt-amount').value = debt.amount;
+    document.getElementById('debt-creditor').value = debt.creditor;
+    document.getElementById('debt-interest').value = debt.interest;
+    document.getElementById('debt-start-date').value = debt.startDate;
+    document.getElementById('debt-end-date').value = debt.endDate;
+    document.getElementById('debt-monthly-payment').value = debt.monthlyPayment;
+    
+    // Store the original ID for updating
+    debtForm.dataset.editingId = id;
+    
+    // Change form submit handler to update instead of add
+    debtForm.onsubmit = function(e) {
+        e.preventDefault();
+        
+        // Get the editing ID
+        const editingId = debtForm.dataset.editingId;
+        
+        // Find the debt to update
+        const debtToUpdate = debts.find(debt => debt.id === editingId);
+        if (!debtToUpdate) return;
+        
+        // Get updated values
+        const newName = document.getElementById('debt-name').value;
+        const newAmount = parseFloat(document.getElementById('debt-amount').value);
+        const newCreditor = document.getElementById('debt-creditor').value;
+        const newInterest = parseFloat(document.getElementById('debt-interest').value) || 0;
+        const newStartDate = document.getElementById('debt-start-date').value;
+        const newEndDate = document.getElementById('debt-end-date').value;
+        const newMonthlyPayment = parseFloat(document.getElementById('debt-monthly-payment').value);
+        
+        // Update debt data
+        debtToUpdate.name = newName;
+        debtToUpdate.amount = newAmount;
+        debtToUpdate.creditor = newCreditor;
+        debtToUpdate.interest = newInterest;
+        debtToUpdate.startDate = newStartDate;
+        debtToUpdate.endDate = newEndDate;
+        debtToUpdate.monthlyPayment = newMonthlyPayment;
+        
+        saveToLocalStorage();
+        updateDebtsList();
+        updateDashboard();
+        
+        // Reset form and hide it
+        debtForm.reset();
+        document.getElementById('debt-start-date').value = new Date().toISOString().split('T')[0];
+        delete debtForm.dataset.editingId;
+        toggleForm(debtFormContainer);
+        
+        // Restore original submit handler
+        debtForm.onsubmit = handleDebtSubmit;
+    };
+}
+
+// Edit repayment
+function editRepayment(id) {
+    const repayment = repayments.find(repayment => repayment.id === id);
+    if (!repayment) return;
+    
+    // Show the repayment form
+    toggleForm(repaymentFormContainer);
+    
+    // Fill the form with repayment data
+    document.getElementById('repayment-person').value = repayment.person;
+    document.getElementById('repayment-amount').value = repayment.amount;
+    document.getElementById('repayment-date').value = repayment.date;
+    document.getElementById('repayment-type').value = repayment.type;
+    document.getElementById('repayment-description').value = repayment.description;
+    
+    // Store the original ID for updating
+    repaymentForm.dataset.editingId = id;
+    
+    // Change form submit handler to update instead of add
+    repaymentForm.onsubmit = function(e) {
+        e.preventDefault();
+        
+        // Get the editing ID
+        const editingId = repaymentForm.dataset.editingId;
+        
+        // Find the repayment to update
+        const repaymentToUpdate = repayments.find(repayment => repayment.id === editingId);
+        if (!repaymentToUpdate) return;
+        
+        // Get updated values
+        const newPerson = document.getElementById('repayment-person').value;
+        const newAmount = parseFloat(document.getElementById('repayment-amount').value);
+        const newDate = document.getElementById('repayment-date').value;
+        const newType = document.getElementById('repayment-type').value;
+        const newDescription = document.getElementById('repayment-description').value;
+        
+        // Update repayment data
+        repaymentToUpdate.person = newPerson;
+        repaymentToUpdate.amount = newAmount;
+        repaymentToUpdate.date = newDate;
+        repaymentToUpdate.type = newType;
+        repaymentToUpdate.description = newDescription;
+        
+        saveToLocalStorage();
+        updateRepaymentsList();
+        updateDashboard();
+        
+        // Reset form and hide it
+        repaymentForm.reset();
+        document.getElementById('repayment-date').value = new Date().toISOString().split('T')[0];
+        delete repaymentForm.dataset.editingId;
+        toggleForm(repaymentFormContainer);
+        
+        // Restore original submit handler
+        repaymentForm.onsubmit = handleRepaymentSubmit;
+    };
+}
+
+// Delete income
+function deleteIncome(id) {
+    if (confirm('Weet je zeker dat je deze inkomsten wilt verwijderen?')) {
+        incomes = incomes.filter(income => income.id !== id);
+        saveToLocalStorage();
+        updateIncomeTable();
+        updateDashboard();
+    }
+}
+
+// Delete expense
+function deleteExpense(id) {
+    if (confirm('Weet je zeker dat je deze uitgaven wilt verwijderen?')) {
+        expenses = expenses.filter(expense => expense.id !== id);
+        saveToLocalStorage();
+        updateExpenseTable();
+        updateDashboard();
+    }
+}
+
+// Delete budget
+function deleteBudget(id) {
+    if (confirm('Weet je zeker dat je dit budget wilt verwijderen?')) {
+        budgets = budgets.filter(budget => budget.id !== id);
+        saveToLocalStorage();
+        updateBudgetsList();
+        updateDashboard();
+    }
+}
+
+// Delete goal
+function deleteGoal(id) {
+    if (confirm('Weet je zeker dat je dit doel wilt verwijderen?')) {
+        goals = goals.filter(goal => goal.id !== id);
+        saveToLocalStorage();
+        updateGoalsList();
+        updateDashboard();
+    }
+}
+
+// Delete debt
+function deleteDebt(id) {
+    if (confirm('Weet je zeker dat je deze schuld wilt verwijderen?')) {
+        debts = debts.filter(debt => debt.id !== id);
+        saveToLocalStorage();
+        updateDebtsList();
+        updateDashboard();
+    }
+}
+
+// Delete repayment
+function deleteRepayment(id) {
+    if (confirm('Weet je zeker dat je deze terugbetaling wilt verwijderen?')) {
+        repayments = repayments.filter(repayment => repayment.id !== id);
+        saveToLocalStorage();
+        updateRepaymentsList();
+        updateDashboard();
+    }
+}
+
+// Make a payment towards a debt
+function makePayment(debtId) {
+    const debt = debts.find(debt => debt.id === debtId);
+    if (!debt) return;
+    
+    const amount = parseFloat(prompt('Hoeveel wilt je betalen?'));
+    if (isNaN(amount) || amount <= 0) {
+        alert('Voer een geldig bedrag in.');
+        return;
+    }
+    
+    if (amount > debt.amount - debt.paid) {
+        alert('Je kunt niet meer betalen dan de openstaande schuld.');
+        return;
+    }
+    
+    debt.paid += amount;
+    saveToLocalStorage();
+    updateDebtsList();
+    updateDashboard();
+}
+
+// Mark a repayment as paid
+function markAsPaid(repaymentId) {
+    const repayment = repayments.find(repayment => repayment.id === repaymentId);
+    if (!repayment) return;
+    
+    if (confirm('Weet je zeker dat je deze terugbetaling als betaald wilt markeren?')) {
+        repayments = repayments.filter(repayment => repayment.id !== repaymentId);
+        saveToLocalStorage();
+        updateRepaymentsList();
+        updateDashboard();
+    }
+}
+
+// Mark an expense as paid
+function markExpenseAsPaid(expenseId) {
+    const expense = expenses.find(expense => expense.id === expenseId);
+    if (!expense) return;
+    
+    if (confirm('Weet je zeker dat je deze uitgave als betaald wilt markeren?')) {
+        expense.paymentStatus = 'paid';
+        saveToLocalStorage();
+        updateExpenseTable();
+        updateDashboard();
+    }
+}
+
+// Get category name from ID
+function getCategoryName(id) {
+    let category = categories.income.find(cat => cat.id === id) || categories.expense.find(cat => cat.id === id);
+    return category ? category.name : 'Onbekend';
+}
+
+// Get payment method name from ID
+function getPaymentMethodName(id) {
+    switch(id) {
+        case 'cash':
+            return 'Contant';
+        case 'creditcard':
+            return 'Creditkaart';
+        case 'debitcard':
+            return 'Debitkaart';
+        case 'banktransfer':
+            return 'Bankoverschrijving';
+        case 'paypal':
+            return 'PayPal';
+        case 'other':
+            return 'Anders';
+        default:
+            return 'Onbekend';
+    }
+}
+
+// Format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('nl-NL');
+}
+
+// Save data to local storage
+function saveToLocalStorage() {
+    localStorage.setItem('finsight_incomes', JSON.stringify(incomes));
+    localStorage.setItem('finsight_expenses', JSON.stringify(expenses));
+    localStorage.setItem('finsight_budgets', JSON.stringify(budgets));
+    localStorage.setItem('finsight_goals', JSON.stringify(goals));
+    localStorage.setItem('finsight_debts', JSON.stringify(debts));
+    localStorage.setItem('finsight_repayments', JSON.stringify(repayments));
+    localStorage.setItem('finsight_categories', JSON.stringify(categories));
+    localStorage.setItem('finsight_monthClosures', JSON.stringify(monthClosures));
+}
+
+// Load data from local storage
+function loadFromLocalStorage() {
+    incomes = JSON.parse(localStorage.getItem('finsight_incomes')) || [];
+    expenses = JSON.parse(localStorage.getItem('finsight_expenses')) || [];
+    budgets = JSON.parse(localStorage.getItem('finsight_budgets')) || [];
+    goals = JSON.parse(localStorage.getItem('finsight_goals')) || [];
+    debts = JSON.parse(localStorage.getItem('finsight_debts')) || [];
+    repayments = JSON.parse(localStorage.getItem('finsight_repayments')) || [];
+    categories = JSON.parse(localStorage.getItem('finsight_categories')) || {
+        income: [
+            { id: 'salary', name: 'Salaris', description: '', icon: '' },
+            { id: 'freelance', name: 'Freelance', description: '', icon: '' },
+            { id: 'investment', name: 'Investeringen', description: '', icon: '' },
+            { id: 'gift', name: 'Geschenken', description: '', icon: '' },
+            { id: 'other', name: 'Overige', description: '', icon: '' }
+        ],
+        expense: [
+            { id: 'groceries', name: 'Boodschappen', description: '', icon: '' },
+            { id: 'rent', name: 'Huur', description: '', icon: '' },
+            { id: 'utilities', name: 'Nutsvoorzieningen', description: '', icon: '' },
+            { id: 'transport', name: 'Vervoer', description: '', icon: '' },
+            { id: 'entertainment', name: 'Entertainment', description: '', icon: '' },
+            { id: 'healthcare', name: 'Gezondheidszorg', description: '', icon: '' },
+            { id: 'education', name: 'Onderwijs', description: '', icon: '' },
+            { id: 'other', name: 'Overige', description: '', icon: '' }
+        ]
+    };
+    monthClosures = JSON.parse(localStorage.getItem('finsight_monthClosures')) || [];
+}
+
                 <button class="delete-btn" onclick="deleteBudget(${budget.id})"><i class="fas fa-trash"></i> Verwijderen</button>
             </div>
         `;
@@ -916,6 +1694,41 @@ function updateDashboard() {
     
     // Update charts
     updateCharts();
+    
+    // Update month closures
+    updateMonthClosures();
+}
+
+// Update month closures on dashboard
+function updateMonthClosures() {
+    const container = document.getElementById('closures-list');
+    
+    if (monthClosures.length === 0) {
+        container.innerHTML = '<p class="no-data">Geen maandafsluitingen gevonden</p>';
+        return;
+    }
+    
+    // Sort closures by date (newest first)
+    const sortedClosures = [...monthClosures].sort((a, b) => new Date(b.closedDate) - new Date(a.closedDate));
+    
+    container.innerHTML = '';
+    sortedClosures.forEach(closure => {
+        const closureItem = document.createElement('div');
+        closureItem.className = 'closure-item';
+        
+        // Get month name
+        const monthNames = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
+                           'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'];
+        const monthName = monthNames[closure.month];
+        
+        closureItem.innerHTML = `
+            <div class="closure-info">
+                <div class="closure-date">${monthName} ${closure.year}</div>
+                <div class="closure-details">${formatDate(closure.closedDate)} - ${closure.transferredExpenses} uitgaven overgedragen</div>
+            </div>
+        `;
+        container.appendChild(closureItem);
+    });
 }
 
 // Update recent transactions
@@ -1449,6 +2262,7 @@ function deleteIncome(id) {
         alert('Er is een fout opgetreden bij het verwijderen van de inkomst.');
     }
 }
+}
 
 function editExpense(id) {
     alert('Bewerken functie nog niet geïmplementeerd');
@@ -1474,14 +2288,15 @@ function deleteExpense(id) {
             // Check if an item was actually removed
             if (expenses.length === originalLength) {
                 console.warn('No expense found with ID:', expenseId);
+                alert('Uitgave niet gevonden.');
+            } else {
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Update the UI
+                updateExpenseTable();
+                updateDashboard();
             }
-            
-            // Save to localStorage
-            saveToLocalStorage();
-            
-            // Update the UI
-            updateExpenseTable();
-            updateDashboard();
         }
     } catch (error) {
         console.error('Error deleting expense:', error);
@@ -1492,30 +2307,6 @@ function deleteExpense(id) {
 function editBudget(id) {
     alert('Bewerken functie nog niet geïmplementeerd');
 }
-
-function deleteBudget(id) {
-    try {
-        if (confirm('Weet je zeker dat je dit budget wilt verwijderen?')) {
-            // Ensure id is a number
-            const budgetId = Number(id);
-            
-            // Validate that we have a valid number
-            if (isNaN(budgetId)) {
-                console.error('Invalid budget ID:', id);
-                alert('Er is een fout opgetreden bij het verwijderen van het budget.');
-                return;
-            }
-            
-            // Filter out the budget with the matching id
-            const originalLength = budgets.length;
-            budgets = budgets.filter(budget => Number(budget.id) !== budgetId);
-            
-            // Check if an item was actually removed
-            if (budgets.length === originalLength) {
-                console.warn('No budget found with ID:', budgetId);
-            }
-            
-            // Save to localStorage
             saveToLocalStorage();
             
             // Update the UI
@@ -1597,12 +2388,102 @@ function deleteDebt(id) {
             saveToLocalStorage();
             
             // Update the UI
-            updateDebtsList();
+            updateDebtTable();
             updateDashboard();
         }
     } catch (error) {
         console.error('Error deleting debt:', error);
         alert('Er is een fout opgetreden bij het verwijderen van de schuld.');
+    }
+}
+
+// Mark an expense as paid
+function markExpenseAsPaid(expenseId) {
+    try {
+        const expense = expenses.find(expense => expense.id === expenseId);
+        if (expense) {
+            if (confirm('Weet je zeker dat je deze uitgave als betaald wilt markeren?')) {
+                expense.paymentStatus = 'paid';
+                saveToLocalStorage();
+                updateExpenseTable();
+                updateDashboard();
+            }
+        } else {
+            console.error('Expense not found with ID:', expenseId);
+            alert('Uitgave niet gevonden.');
+        }
+    } catch (error) {
+        console.error('Error marking expense as paid:', error);
+        alert('Er is een fout opgetreden bij het markeren van de uitgave als betaald.');
+    }
+}
+
+// Function to close current month
+function closeCurrentMonth() {
+    try {
+        if (confirm('Weet je zeker dat je de huidige maand wilt afsluiten? Alle openstaande uitgaven zullen worden overgedragen naar de volgende maand.')) {
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            
+            // Find open expenses for current month
+            const openExpenses = expenses.filter(expense => 
+                expense.paymentStatus === 'open' && 
+                expense.month === currentMonth && 
+                expense.year === currentYear
+            );
+            
+            // Transfer open expenses to next month
+            openExpenses.forEach(expense => {
+                // Create a new expense for next month
+                const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+                const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+                
+                // Calculate the date for next month (keeping the same day)
+                const expenseDate = new Date(expense.date);
+                const newDate = new Date(nextYear, nextMonth, expenseDate.getDate());
+                
+                // Handle month overflow (e.g., Jan 31 -> Feb 28/29)
+                if (newDate.getMonth() !== nextMonth) {
+                    // Set to last day of next month
+                    newDate.setDate(0);
+                }
+                
+                const newExpense = {
+                    id: Date.now() + Math.floor(Math.random() * 1000), // New unique ID
+                    description: `[OVERGEDRAGEN] ${expense.description}`,
+                    amount: expense.amount,
+                    category: expense.category,
+                    date: newDate.toISOString().split('T')[0],
+                    paymentMethod: expense.paymentMethod,
+                    paymentStatus: 'open',
+                    month: nextMonth,
+                    year: nextYear
+                };
+                
+                expenses.push(newExpense);
+            });
+            
+            // Record month closure
+            monthClosures.push({
+                id: Date.now(),
+                month: currentMonth,
+                year: currentYear,
+                closedDate: new Date().toISOString(),
+                transferredExpenses: openExpenses.length
+            });
+            
+            saveToLocalStorage();
+            
+            // Update the UI
+            updateExpenseTable();
+            updateDashboard();
+            
+            alert(`Maand afgesloten. ${openExpenses.length} openstaande uitgaven zijn overgedragen naar de volgende maand.`);
+        }
+    } catch (error) {
+        console.error('Error closing month:', error);
+        alert('Er is een fout opgetreden bij het afsluiten van de maand.');
     }
 }
 
@@ -1621,38 +2502,6 @@ function markAsPaid(id) {
 function editRepayment(id) {
     alert('Bewerken functie nog niet geïmplementeerd');
 }
-
-function deleteRepayment(id) {
-    try {
-        if (confirm('Weet je zeker dat je deze terugbetaling wilt verwijderen?')) {
-            // Ensure id is a number
-            const repaymentId = Number(id);
-            
-            // Validate that we have a valid number
-            if (isNaN(repaymentId)) {
-                console.error('Invalid repayment ID:', id);
-                alert('Er is een fout opgetreden bij het verwijderen van de terugbetaling.');
-                return;
-            }
-            
-            // Filter out the repayment with the matching id
-            const originalLength = repayments.length;
-            repayments = repayments.filter(repayment => repayment.id !== repaymentId);
-            
-            // Check if an item was actually removed
-            if (repayments.length === originalLength) {
-                console.warn('No repayment found with ID:', repaymentId);
-            }
-            
-            // Save to localStorage
-            saveToLocalStorage();
-            
-            // Update the UI
-            updateRepaymentsList();
-            updateDashboard();
-        }
-    } catch (error) {
-        console.error('Error deleting repayment:', error);
         alert('Er is een fout opgetreden bij het verwijderen van de terugbetaling.');
     }
 }
@@ -1666,6 +2515,7 @@ function saveToLocalStorage() {
     localStorage.setItem('finsight_debts', JSON.stringify(debts));
     localStorage.setItem('finsight_repayments', JSON.stringify(repayments));
     localStorage.setItem('finsight_categories', JSON.stringify(categories));
+    localStorage.setItem('finsight_monthClosures', JSON.stringify(monthClosures));
 }
 
 function loadFromLocalStorage() {
@@ -1691,4 +2541,7 @@ function loadFromLocalStorage() {
     if (storedCategories) {
         categories = JSON.parse(storedCategories);
     }
+    
+    const storedMonthClosures = localStorage.getItem('finsight_monthClosures');
+    if (storedMonthClosures) monthClosures = JSON.parse(storedMonthClosures);
 }

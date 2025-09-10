@@ -929,3 +929,122 @@ body {
         padding: 0.4rem;
     }
 }
+
+/* Search and filter styles */
+.search-filter-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.search-input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-input:focus,
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.filter-select {
+    min-width: 150px;
+}
+
+@media (max-width: 768px) {
+    .search-filter-container {
+        flex-direction: column;
+    }
+    
+    .search-input,
+    .filter-select {
+        width: 100%;
+    }
+}
+
+/* Payment status styles */
+.status-paid {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-open {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Expense actions */
+.expense-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .expense-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+}
+
+/* Pay button */
+.pay-btn {
+    background: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pay-btn:hover {
+    background: #38b6ff;
+    transform: translateY(-2px);
+}
+
+/* Month closures */
+.month-closures {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.closures-list {
+    margin-top: 1rem;
+}
+
+.closure-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.closure-item:last-child {
+    border-bottom: none;
+}
+
+.closure-date {
+    font-weight: 600;
+}
+
+.closure-details {
+    color: var(--gray-color);
+}

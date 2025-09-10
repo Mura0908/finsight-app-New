@@ -92,6 +92,36 @@
             color: #6c757d;
             font-size: 0.9rem;
         }
+        
+        .github-link {
+            display: inline-block;
+            background: #24292e;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .github-link:hover {
+            background: #000;
+            transform: translateY(-2px);
+        }
+        
+        .github-link i {
+            margin-right: 0.5rem;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -102,8 +132,12 @@
         <h1>FinSight Budget App</h1>
         <p>Uw persoonlijke financiële beheerapp</p>
         
-        <a href="app-debug.apk" class="download-btn" download>
-            <i class="fas fa-download"></i> Download APK
+        <div class="note">
+            <p><strong>Let op:</strong> De APK is beschikbaar via GitHub Releases.</p>
+        </div>
+        
+        <a href="https://github.com/Mura0908/finsight-app-New/releases" class="github-link" target="_blank">
+            <i class="fab fa-github"></i> Download van GitHub
         </a>
         
         <div class="info-box">
@@ -116,7 +150,8 @@
         <div class="steps">
             <h3>Installatie stappen:</h3>
             <ol>
-                <li>Download het APK-bestand door op de downloadknop te klikken</li>
+                <li>Klik op de "Download van GitHub" knop hierboven</li>
+                <li>Selecteer de nieuwste release en download het APK-bestand</li>
                 <li>Ga naar je telefooninstellingen en schakel "Onbekende bronnen" in</li>
                 <li>Open het gedownloade APK-bestand</li>
                 <li>Volg de installatie-instructies op het scherm</li>

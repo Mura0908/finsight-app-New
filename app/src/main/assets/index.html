@@ -131,6 +131,14 @@
                         <p class="no-data">Geen transacties gevonden</p>
                     </div>
                 </div>
+
+                <!-- Month Closures -->
+                <div class="month-closures">
+                    <h3>Maandafsluitingen</h3>
+                    <div class="closures-list" id="closures-list">
+                        <p class="no-data">Geen maandafsluitingen gevonden</p>
+                    </div>
+                </div>
             </section>
 
             <!-- Income Tab -->
@@ -193,6 +201,19 @@
                     </form>
                 </div>
 
+                <!-- Search and filter for incomes -->
+                <div class="search-filter-container">
+                    <input type="text" id="income-search" placeholder="Zoek in inkomsten..." class="search-input">
+                    <select id="income-category-filter" class="filter-select">
+                        <option value="">Alle categorieën</option>
+                        <option value="salary">Salaris</option>
+                        <option value="freelance">Freelance</option>
+                        <option value="investment">Investeringen</option>
+                        <option value="gift">Geschenken</option>
+                        <option value="other">Overige</option>
+                    </select>
+                </div>
+
                 <div class="data-table-container">
                     <h3>Inkomsten overzicht</h3>
                     <table class="data-table" id="income-table">
@@ -219,9 +240,14 @@
             <section id="expenses" class="tab-content">
                 <div class="section-header">
                     <h2>Uitgaven bijhouden</h2>
-                    <button id="add-expense-btn" class="btn-primary">
-                        <i class="fas fa-plus"></i> Nieuwe uitgave
-                    </button>
+                    <div class="expense-actions">
+                        <button id="close-month-btn" class="btn-secondary">
+                            <i class="fas fa-calendar-check"></i> Maand afsluiten
+                        </button>
+                        <button id="add-expense-btn" class="btn-primary">
+                            <i class="fas fa-plus"></i> Nieuwe uitgave
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-container" id="expense-form-container">
@@ -278,6 +304,22 @@
                     </form>
                 </div>
 
+                <!-- Search and filter for expenses -->
+                <div class="search-filter-container">
+                    <input type="text" id="expense-search" placeholder="Zoek in uitgaven..." class="search-input">
+                    <select id="expense-category-filter" class="filter-select">
+                        <option value="">Alle categorieën</option>
+                        <option value="groceries">Boodschappen</option>
+                        <option value="rent">Huur</option>
+                        <option value="utilities">Nutsvoorzieningen</option>
+                        <option value="transport">Vervoer</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="healthcare">Gezondheidszorg</option>
+                        <option value="education">Onderwijs</option>
+                        <option value="other">Overige</option>
+                    </select>
+                </div>
+
                 <div class="data-table-container">
                     <h3>Uitgaven overzicht</h3>
                     <table class="data-table" id="expense-table">
@@ -288,12 +330,13 @@
                                 <th>Categorie</th>
                                 <th>Methode</th>
                                 <th>Bedrag</th>
+                                <th>Status</th>
                                 <th>Acties</th>
                             </tr>
                         </thead>
                         <tbody id="expense-table-body">
                             <tr>
-                                <td colspan="6" class="no-data">Geen uitgaven gevonden</td>
+                                <td colspan="7" class="no-data">Geen uitgaven gevonden</td>
                             </tr>
                         </tbody>
                     </table>

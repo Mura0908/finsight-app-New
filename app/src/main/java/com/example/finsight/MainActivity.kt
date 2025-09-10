@@ -36,6 +36,11 @@ class MainActivity : ComponentActivity() {
         webSettings.builtInZoomControls = true
         webSettings.displayZoomControls = false
         
+        // Improve performance
+        webSettings.useWideViewPort = true
+        webSettings.loadWithOverviewMode = true
+        webSettings.setSupportMultipleWindows(true)
+        
         // Enable debugging
         WebView.setWebContentsDebuggingEnabled(true)
         
