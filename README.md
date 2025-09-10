@@ -25,7 +25,9 @@ FinSight is a personal finance management application that helps users track inc
 
 ### Android APK
 
-You can download the APK directly from our [download page](app/src/main/assets/download.html) within the app, or by accessing the download.html file after deploying the assets to a web server.
+You can download the latest APK directly from our [Releases page](https://github.com/Mura0908/finsight-app-New/releases/latest).
+
+Alternatively, you can download the APK from our [download page](app/src/main/assets/download.html) within the app, or by accessing the download.html file after deploying the assets to a web server.
 
 For direct access, deploy the contents of `app/src/main/assets/` to a web server and navigate to the download.html page.
 
@@ -33,12 +35,20 @@ For direct access, deploy the contents of `app/src/main/assets/` to a web server
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/finsight-app.git
+   git clone https://github.com/Mura0908/finsight-app-New.git
    ```
 
 2. Open the project in Android Studio
 
 3. Build and run the app
+
+## GitHub Actions Automation
+
+This repository uses GitHub Actions to automatically build and release the APK:
+
+- On every push to the `main` branch, a new APK is built
+- The APK is automatically attached to a new release with a version tag
+- You can download the latest APK from the [Releases page](https://github.com/Mura0908/finsight-app-New/releases/latest)
 
 ## Usage
 
@@ -60,7 +70,7 @@ For direct access, deploy the contents of `app/src/main/assets/` to a web server
 ## Project Structure
 
 ```
-finsight-app/
+finsight-app-New/
 ├── app/
 │   ├── src/
 │   │   ├── main/
