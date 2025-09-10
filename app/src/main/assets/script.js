@@ -76,12 +76,35 @@ const repaymentPasswordBtn = document.getElementById('repayment-password-btn');
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing app');
     initializeApp();
     setupEventListeners();
     loadFromLocalStorage();
     updateDashboard();
     updateCategorySelectors();
+    console.log('App initialization completed');
 });
+
+// Set up event listeners
+function setupEventListeners() {
+    console.log('Setting up event listeners');
+    console.log('Found tab buttons:', tabButtons.length);
+    console.log('Found tab contents:', tabContents.length);
+    
+    // Tab navigation
+    tabButtons.forEach((button, index) => {
+        console.log('Setting up event listener for tab button', index, button.dataset.tab);
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Tab button clicked:', button.dataset.tab);
+            switchTab(button.dataset.tab);
+        });
+    });
+    
+    // Form toggles
+    addIncomeBtn.addEventListener('click', () => toggleForm(incomeFormContainer));
+    addExpenseBtn.addEventListener('click', () => toggleForm(expenseFormContainer));
+}
 
 // Initialize the app
 function initializeApp() {
@@ -96,16 +119,6 @@ function initializeApp() {
     document.getElementById('debt-start-date').value = today;
 }
 
-// Set up event listeners
-function setupEventListeners() {
-    // Tab navigation
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => switchTab(button.dataset.tab));
-    });
-    
-    // Form toggles
-    addIncomeBtn.addEventListener('click', () => toggleForm(incomeFormContainer));
-    addExpenseBtn.addEventListener('click', () => toggleForm(expenseFormContainer));
     addBudgetBtn.addEventListener('click', () => toggleForm(budgetFormContainer));
     addGoalBtn.addEventListener('click', () => toggleForm(goalFormContainer));
     addDebtBtn.addEventListener('click', () => toggleForm(debtFormContainer));
@@ -425,6 +438,8 @@ function deleteCategory(id, type) {
 
 // Switch between tabs
 function switchTab(tabName) {
+    console.log('Switching to tab:', tabName);
+    
     // Update active tab button
     tabButtons.forEach(button => {
         if (button.dataset.tab === tabName) {
@@ -474,6 +489,13 @@ function switchTab(tabName) {
             break;
         case 'reports':
             updateReports();
+            break;
+    }
+    
+    console.log('Tab switching completed for:', tabName);
+}
+
+
             break;
     }
 }
