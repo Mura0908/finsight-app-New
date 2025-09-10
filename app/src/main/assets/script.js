@@ -1416,11 +1416,24 @@ function editIncome(id) {
 }
 
 function deleteIncome(id) {
-    if (confirm('Weet je zeker dat je deze inkomst wilt verwijderen?')) {
-        incomes = incomes.filter(income => income.id !== id);
-        saveToLocalStorage();
-        updateIncomeTable();
-        updateDashboard();
+    try {
+        if (confirm('Weet je zeker dat je deze inkomst wilt verwijderen?')) {
+            // Convert id to number if it's a string
+            const incomeId = typeof id === 'string' ? parseInt(id) : id;
+            
+            // Filter out the income with the matching id
+            incomes = incomes.filter(income => income.id !== incomeId);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update the UI
+            updateIncomeTable();
+            updateDashboard();
+        }
+    } catch (error) {
+        console.error('Error deleting income:', error);
+        alert('Er is een fout opgetreden bij het verwijderen van de inkomst.');
     }
 }
 
@@ -1429,11 +1442,24 @@ function editExpense(id) {
 }
 
 function deleteExpense(id) {
-    if (confirm('Weet je zeker dat je deze uitgave wilt verwijderen?')) {
-        expenses = expenses.filter(expense => expense.id !== id);
-        saveToLocalStorage();
-        updateExpenseTable();
-        updateDashboard();
+    try {
+        if (confirm('Weet je zeker dat je deze uitgave wilt verwijderen?')) {
+            // Convert id to number if it's a string
+            const expenseId = typeof id === 'string' ? parseInt(id) : id;
+            
+            // Filter out the expense with the matching id
+            expenses = expenses.filter(expense => expense.id !== expenseId);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update the UI
+            updateExpenseTable();
+            updateDashboard();
+        }
+    } catch (error) {
+        console.error('Error deleting expense:', error);
+        alert('Er is een fout opgetreden bij het verwijderen van de uitgave.');
     }
 }
 
@@ -1442,11 +1468,24 @@ function editBudget(id) {
 }
 
 function deleteBudget(id) {
-    if (confirm('Weet je zeker dat je dit budget wilt verwijderen?')) {
-        budgets = budgets.filter(budget => budget.id !== id);
-        saveToLocalStorage();
-        updateBudgetsList();
-        updateDashboard();
+    try {
+        if (confirm('Weet je zeker dat je dit budget wilt verwijderen?')) {
+            // Convert id to number if it's a string
+            const budgetId = typeof id === 'string' ? parseInt(id) : id;
+            
+            // Filter out the budget with the matching id
+            budgets = budgets.filter(budget => budget.id !== budgetId);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update the UI
+            updateBudgetsList();
+            updateDashboard();
+        }
+    } catch (error) {
+        console.error('Error deleting budget:', error);
+        alert('Er is een fout opgetreden bij het verwijderen van het budget.');
     }
 }
 
@@ -1455,11 +1494,24 @@ function editGoal(id) {
 }
 
 function deleteGoal(id) {
-    if (confirm('Weet je zeker dat je dit doel wilt verwijderen?')) {
-        goals = goals.filter(goal => goal.id !== id);
-        saveToLocalStorage();
-        updateGoalsList();
-        updateDashboard();
+    try {
+        if (confirm('Weet je zeker dat je dit doel wilt verwijderen?')) {
+            // Convert id to number if it's a string
+            const goalId = typeof id === 'string' ? parseInt(id) : id;
+            
+            // Filter out the goal with the matching id
+            goals = goals.filter(goal => goal.id !== goalId);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update the UI
+            updateGoalsList();
+            updateDashboard();
+        }
+    } catch (error) {
+        console.error('Error deleting goal:', error);
+        alert('Er is een fout opgetreden bij het verwijderen van het doel.');
     }
 }
 
@@ -1468,11 +1520,24 @@ function editDebt(id) {
 }
 
 function deleteDebt(id) {
-    if (confirm('Weet je zeker dat je deze schuld wilt verwijderen?')) {
-        debts = debts.filter(debt => debt.id !== id);
-        saveToLocalStorage();
-        updateDebtsList();
-        updateDashboard();
+    try {
+        if (confirm('Weet je zeker dat je deze schuld wilt verwijderen?')) {
+            // Convert id to number if it's a string
+            const debtId = typeof id === 'string' ? parseInt(id) : id;
+            
+            // Filter out the debt with the matching id
+            debts = debts.filter(debt => debt.id !== debtId);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update the UI
+            updateDebtsList();
+            updateDashboard();
+        }
+    } catch (error) {
+        console.error('Error deleting debt:', error);
+        alert('Er is een fout opgetreden bij het verwijderen van de schuld.');
     }
 }
 
@@ -1493,11 +1558,24 @@ function editRepayment(id) {
 }
 
 function deleteRepayment(id) {
-    if (confirm('Weet je zeker dat je deze terugbetaling wilt verwijderen?')) {
-        repayments = repayments.filter(repayment => repayment.id !== id);
-        saveToLocalStorage();
-        updateRepaymentsList();
-        updateDashboard();
+    try {
+        if (confirm('Weet je zeker dat je deze terugbetaling wilt verwijderen?')) {
+            // Convert id to number if it's a string
+            const repaymentId = typeof id === 'string' ? parseInt(id) : id;
+            
+            // Filter out the repayment with the matching id
+            repayments = repayments.filter(repayment => repayment.id !== repaymentId);
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update the UI
+            updateRepaymentsList();
+            updateDashboard();
+        }
+    } catch (error) {
+        console.error('Error deleting repayment:', error);
+        alert('Er is een fout opgetreden bij het verwijderen van de terugbetaling.');
     }
 }
 
