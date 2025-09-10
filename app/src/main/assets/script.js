@@ -30,60 +30,104 @@ let categories = {
 // Add new array for month closures
 let monthClosures = [];
 
-// DOM Elements
-const tabButtons = document.querySelectorAll('.nav-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-const incomeFormContainer = document.getElementById('income-form-container');
-const expenseFormContainer = document.getElementById('expense-form-container');
-const budgetFormContainer = document.getElementById('budget-form-container');
-const goalFormContainer = document.getElementById('goal-form-container');
-const debtFormContainer = document.getElementById('debt-form-container');
-const repaymentFormContainer = document.getElementById('repayment-form-container');
-const categoryFormContainer = document.getElementById('category-form-container');
-const repaymentPasswordSection = document.getElementById('repayment-password-section');
-const repaymentsList = document.getElementById('repayments-list');
-
-// Form elements
-const incomeForm = document.getElementById('income-form');
-const expenseForm = document.getElementById('expense-form');
-const budgetForm = document.getElementById('budget-form');
-const goalForm = document.getElementById('goal-form');
-const debtForm = document.getElementById('debt-form');
-const repaymentForm = document.getElementById('repayment-form');
-const categoryForm = document.getElementById('category-form');
-
-// Button elements
-const addIncomeBtn = document.getElementById('add-income-btn');
-const addExpenseBtn = document.getElementById('add-expense-btn');
-const addBudgetBtn = document.getElementById('add-budget-btn');
-const addGoalBtn = document.getElementById('add-goal-btn');
-const addDebtBtn = document.getElementById('add-debt-btn');
-const addRepaymentBtn = document.getElementById('add-repayment-btn');
-const addCategoryBtn = document.getElementById('add-category-btn');
-
-const cancelIncomeBtn = document.getElementById('cancel-income-btn');
-const cancelExpenseBtn = document.getElementById('cancel-expense-btn');
-const cancelBudgetBtn = document.getElementById('cancel-budget-btn');
-const cancelGoalBtn = document.getElementById('cancel-goal-btn');
-const cancelDebtBtn = document.getElementById('cancel-debt-btn');
-const cancelRepaymentBtn = document.getElementById('cancel-repayment-btn');
-const cancelCategoryBtn = document.getElementById('cancel-category-btn');
-
-// Password protection elements
-const repaymentPasswordInput = document.getElementById('repayment-password');
-const repaymentPasswordSetupInput = document.getElementById('repayment-password-setup');
-const repaymentPasswordBtn = document.getElementById('repayment-password-btn');
-
-// Initialize the app
+// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing app');
+    
+    // Set up tab navigation
+    setupTabNavigation();
+    
+    // Initialize other components
     initializeApp();
     setupEventListeners();
     loadFromLocalStorage();
     updateDashboard();
     updateCategorySelectors();
+    
     console.log('App initialization completed');
 });
+
+// Set up tab navigation
+function setupTabNavigation() {
+    console.log('Setting up tab navigation');
+    
+    // Get all tab buttons
+    const tabButtons = document.querySelectorAll('.nav-btn');
+    console.log('Found tab buttons:', tabButtons.length);
+    
+    // Add click event to each tab button
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabName = this.getAttribute('data-tab');
+            console.log('Tab clicked:', tabName);
+            switchToTab(tabName);
+        });
+    });
+}
+
+// Switch to a specific tab
+function switchToTab(tabName) {
+    console.log('Switching to tab:', tabName);
+    
+    // Get all tab buttons and contents
+    const tabButtons = document.querySelectorAll('.nav-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    // Remove active class from all buttons and contents
+    tabButtons.forEach(button => button.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+    
+    // Add active class to clicked button
+    const activeButton = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+        console.log('Activated button for tab:', tabName);
+    }
+    
+    // Show the corresponding content
+    const activeContent = document.getElementById(tabName);
+    if (activeContent) {
+        activeContent.classList.add('active');
+        console.log('Activated content for tab:', tabName);
+    }
+    
+    // Close all forms when switching tabs
+    closeAllForms();
+    
+    // Special handling for specific tabs
+    switch(tabName) {
+        case 'repayments':
+            handleRepaymentsTab();
+            break;
+        case 'categories':
+            updateCategoriesTable();
+            break;
+        case 'dashboard':
+            updateDashboard();
+            break;
+        case 'income':
+            updateIncomeTable();
+            break;
+        case 'expenses':
+            updateExpenseTable();
+            break;
+        case 'budgets':
+            updateBudgetsList();
+            break;
+        case 'goals':
+            updateGoalsList();
+            break;
+        case 'debts':
+            updateDebtsList();
+            break;
+        case 'reports':
+            updateReports();
+            break;
+    }
+    
+    console.log('Tab switching completed for:', tabName);
+}
 
 // Initialize the app
 function initializeApp() {
@@ -101,54 +145,53 @@ function initializeApp() {
 // Set up event listeners
 function setupEventListeners() {
     console.log('Setting up event listeners');
-    console.log('Found tab buttons:', tabButtons.length);
-    console.log('Found tab contents:', tabContents.length);
-    
-    // Tab navigation
-    tabButtons.forEach((button, index) => {
-        console.log('Setting up event listener for tab button', index, button.dataset.tab);
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('Tab button clicked:', button.dataset.tab);
-            switchTab(button.dataset.tab);
-        });
-    });
     
     // Form toggles
-    addIncomeBtn.addEventListener('click', () => toggleForm(incomeFormContainer));
-    addExpenseBtn.addEventListener('click', () => toggleForm(expenseFormContainer));
-    addBudgetBtn.addEventListener('click', () => toggleForm(budgetFormContainer));
-    addGoalBtn.addEventListener('click', () => toggleForm(goalFormContainer));
-    addDebtBtn.addEventListener('click', () => toggleForm(debtFormContainer));
-    addRepaymentBtn.addEventListener('click', () => toggleForm(repaymentFormContainer));
-    addCategoryBtn.addEventListener('click', () => toggleForm(categoryFormContainer));
+    const addIncomeBtn = document.getElementById('add-income-btn');
+    const addExpenseBtn = document.getElementById('add-expense-btn');
+    const addBudgetBtn = document.getElementById('add-budget-btn');
+    const addGoalBtn = document.getElementById('add-goal-btn');
+    const addDebtBtn = document.getElementById('add-debt-btn');
+    const addRepaymentBtn = document.getElementById('add-repayment-btn');
+    const addCategoryBtn = document.getElementById('add-category-btn');
     
-    // Cancel buttons
-    cancelIncomeBtn.addEventListener('click', () => toggleForm(incomeFormContainer));
-    cancelExpenseBtn.addEventListener('click', () => toggleForm(expenseFormContainer));
-    cancelBudgetBtn.addEventListener('click', () => toggleForm(budgetFormContainer));
-    cancelGoalBtn.addEventListener('click', () => toggleForm(goalFormContainer));
-    cancelDebtBtn.addEventListener('click', () => toggleForm(debtFormContainer));
-    cancelRepaymentBtn.addEventListener('click', () => toggleForm(repaymentFormContainer));
-    cancelCategoryBtn.addEventListener('click', () => toggleForm(categoryFormContainer));
+    if (addIncomeBtn) addIncomeBtn.addEventListener('click', () => toggleForm(document.getElementById('income-form-container')));
+    if (addExpenseBtn) addExpenseBtn.addEventListener('click', () => toggleForm(document.getElementById('expense-form-container')));
+    if (addBudgetBtn) addBudgetBtn.addEventListener('click', () => toggleForm(document.getElementById('budget-form-container')));
+    if (addGoalBtn) addGoalBtn.addEventListener('click', () => toggleForm(document.getElementById('goal-form-container')));
+    if (addDebtBtn) addDebtBtn.addEventListener('click', () => toggleForm(document.getElementById('debt-form-container')));
+    if (addRepaymentBtn) addRepaymentBtn.addEventListener('click', () => toggleForm(document.getElementById('repayment-form-container')));
+    if (addCategoryBtn) addCategoryBtn.addEventListener('click', () => toggleForm(document.getElementById('category-form-container')));
     
     // Form submissions
-    incomeForm.addEventListener('submit', handleIncomeSubmit);
-    expenseForm.addEventListener('submit', handleExpenseSubmit);
-    budgetForm.addEventListener('submit', handleBudgetSubmit);
-    goalForm.addEventListener('submit', handleGoalSubmit);
-    debtForm.addEventListener('submit', handleDebtSubmit);
-    repaymentForm.addEventListener('submit', handleRepaymentSubmit);
-    categoryForm.addEventListener('submit', handleCategorySubmit);
+    const incomeForm = document.getElementById('income-form');
+    const expenseForm = document.getElementById('expense-form');
+    const budgetForm = document.getElementById('budget-form');
+    const goalForm = document.getElementById('goal-form');
+    const debtForm = document.getElementById('debt-form');
+    const repaymentForm = document.getElementById('repayment-form');
+    const categoryForm = document.getElementById('category-form');
     
+    if (incomeForm) incomeForm.addEventListener('submit', handleIncomeSubmit);
+    if (expenseForm) expenseForm.addEventListener('submit', handleExpenseSubmit);
+    if (budgetForm) budgetForm.addEventListener('submit', handleBudgetSubmit);
+    if (goalForm) goalForm.addEventListener('submit', handleGoalSubmit);
+    if (debtForm) debtForm.addEventListener('submit', handleDebtSubmit);
+    if (repaymentForm) repaymentForm.addEventListener('submit', handleRepaymentSubmit);
+    if (categoryForm) categoryForm.addEventListener('submit', handleCategorySubmit);
+    
+    // Other event listeners
     // Password protection for repayments
-    repaymentPasswordBtn.addEventListener('click', handleRepaymentPassword);
+    const repaymentPasswordBtn = document.getElementById('repayment-password-btn');
+    if (repaymentPasswordBtn) repaymentPasswordBtn.addEventListener('click', handleRepaymentPassword);
     
     // Dashboard period selector
-    document.getElementById('dashboard-period').addEventListener('change', updateDashboard);
+    const dashboardPeriod = document.getElementById('dashboard-period');
+    if (dashboardPeriod) dashboardPeriod.addEventListener('change', updateDashboard);
     
     // Report period selector
-    document.getElementById('report-period').addEventListener('change', updateReports);
+    const reportPeriod = document.getElementById('report-period');
+    if (reportPeriod) reportPeriod.addEventListener('change', updateReports);
     
     // Search and filter event listeners
     const incomeSearch = document.getElementById('income-search');
@@ -441,10 +484,15 @@ function deleteCategory(id, type) {
 function switchTab(tabName) {
     console.log('Switching to tab:', tabName);
     
+    // Get fresh references to tab buttons and contents
+    const tabButtons = document.querySelectorAll('.nav-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
     // Update active tab button
     tabButtons.forEach(button => {
         if (button.dataset.tab === tabName) {
             button.classList.add('active');
+            console.log('Activated tab button:', tabName);
         } else {
             button.classList.remove('active');
         }
@@ -454,6 +502,7 @@ function switchTab(tabName) {
     tabContents.forEach(content => {
         if (content.id === tabName) {
             content.classList.add('active');
+            console.log('Activated tab content:', tabName);
         } else {
             content.classList.remove('active');
         }
