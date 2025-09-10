@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Delete Functionality</title>
+</head>
+<body>
+    <h1>Test Delete Functionality</h1>
+    <button onclick="testDelete()">Test Delete Function</button>
+    <div id="result"></div>
+
+    <script>
+        // Test data
+        let incomes = [
+            { id: 1, description: "Salary", amount: 3000 },
+            { id: 2, description: "Freelance", amount: 500 }
+        ];
+
+        // Improved delete function
+        function deleteIncome(id) {
+            try {
+                if (confirm('Weet je zeker dat je deze inkomst wilt verwijderen?')) {
+                    // Ensure id is a number
+                    const incomeId = Number(id);
+                    
+                    // Validate that we have a valid number
+                    if (isNaN(incomeId)) {
+                        console.error('Invalid income ID:', id);
+                        alert('Er is een fout opgetreden bij het verwijderen van de inkomst.');
+                        return;
+                    }
+                    
+                    // Filter out the income with the matching id
+                    const originalLength = incomes.length;
+                    incomes = incomes.filter(income => Number(income.id) !== incomeId);
+                    
+                    // Check if an item was actually removed
+                    if (incomes.length === originalLength) {
+                        console.warn('No income found with ID:', incomeId);
+                    }
+                    
+                    console.log('Incomes after deletion:', incomes);
+                    document.getElementById('result').innerHTML = '<p>Income deleted successfully. Remaining incomes: ' + JSON.stringify(incomes) + '</p>';
+                }
+            } catch (error) {
+                console.error('Error deleting income:', error);
+                alert('Er is een fout opgetreden bij het verwijderen van de inkomst.');
+            }
+        }
+
+        function testDelete() {
+            console.log('Initial incomes:', incomes);
+            deleteIncome(1);
+        }
+    </script>
+</body>
+</html>

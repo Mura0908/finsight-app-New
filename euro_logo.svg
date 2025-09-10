@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
+  <!-- Green background circle -->
+  <circle cx="54" cy="54" r="34" fill="#3DDC84"/>
+  
+  <!-- Clear Euro symbol -->
+  <!-- Top horizontal line -->
+  <rect x="36" y="32" width="36" height="4" fill="white" rx="2"/>
+  
+  <!-- Bottom horizontal line -->
+  <rect x="36" y="72" width="36" height="4" fill="white" rx="2"/>
+  
+  <!-- Vertical bar with curves -->
+  <path d="M40,36 L40,72 
+           C40,74 42,76 44,76 
+           L56,76 
+           C58,76 60,74 60,72 
+           L60,68 
+           C60,66 58,64 56,64 
+           L52,64 
+           L52,68 
+           L48,68 
+           L48,64 
+           L44,64 
+           L44,68 
+           L40,68 
+           L40,40 
+           L44,40 
+           L44,44 
+           L48,44 
+           L48,40 
+           L52,40 
+           L52,44 
+           L56,44 
+           L56,40 
+           C58,40 60,38 60,36 
+           L60,32 
+           C60,30 58,28 56,28 
+           L44,28 
+           C42,28 40,30 40,32 
+           Z" fill="white"/>
+</svg>

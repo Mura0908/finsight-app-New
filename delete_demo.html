@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Functionality Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .income-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete-btn {
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #ff2e43;
+        }
+        .add-btn {
+            background-color: #2ed573;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .add-btn:hover {
+            background-color: #26d467;
+        }
+    </style>
+</head>
+<body>
+    <h1>Delete Functionality Demo</h1>
+    <button class="add-btn" onclick="addIncome()">Voeg inkomst toe</button>
+    <div id="incomes-container"></div>
+
+    <script>
+        // Test data
+        let incomes = [
+            { id: 1, description: "Salaris", amount: 3000 },
+            { id: 2, description: "Freelance werk", amount: 500 }
+        ];
+
+        // Improved delete function with better error handling
+        function deleteIncome(id) {
+            try {
+                if (confirm('Weet je zeker dat je deze inkomst wilt verwijderen?')) {
+                    // Ensure id is a number
+                    const incomeId = Number(id);
+                    
+                    // Validate that we have a valid number
+                    if (isNaN(incomeId)) {
+                        console.error('Invalid income ID:', id);
+                        alert('Er is een fout opgetreden bij het verwijderen van de inkomst.');
+                        return;
+                    }
+                    
+                    // Filter out the income with the matching id
+                    const originalLength = incomes.length;
+                    incomes = incomes.filter(income => Number(income.id) !== incomeId);
+                    
+                    // Check if an item was actually removed
+                    if (incomes.length === originalLength) {
+                        console.warn('No income found with ID:', incomeId);
+                        alert('Inkomst niet gevonden.');
+                    } else {
+                        console.log('Income deleted successfully. Remaining incomes:', incomes);
+                        renderIncomes(); // Update the UI
+                    }
+                }
+            } catch (error) {
+                console.error('Error deleting income:', error);
+                alert('Er is een fout opgetreden bij het verwijderen van de inkomst.');
+            }
+        }
+
+        function addIncome() {
+            const newId = Date.now();
+            incomes.push({
+                id: newId,
+                description: "Nieuwe inkomst",
+                amount: Math.floor(Math.random() * 1000) + 100
+            });
+            renderIncomes();
+        }
+
+        function renderIncomes() {
+            const container = document.getElementById('incomes-container');
+            container.innerHTML = '';
+            
+            if (incomes.length === 0) {
+                container.innerHTML = '<p>Geen inkomsten gevonden</p>';
+                return;
+            }
+            
+            incomes.forEach(income => {
+                const div = document.createElement('div');
+                div.className = 'income-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${income.description}</strong> - €${income.amount}
+                    </div>
+                    <button class="delete-btn" onclick="deleteIncome(${income.id})">Verwijder</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Initial render
+        renderIncomes();
+    </script>
+</body>
+</html>

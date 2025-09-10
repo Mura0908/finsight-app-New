@@ -1418,11 +1418,24 @@ function editIncome(id) {
 function deleteIncome(id) {
     try {
         if (confirm('Weet je zeker dat je deze inkomst wilt verwijderen?')) {
-            // Convert id to number if it's a string
-            const incomeId = typeof id === 'string' ? parseInt(id) : id;
+            // Ensure id is a number
+            const incomeId = Number(id);
+            
+            // Validate that we have a valid number
+            if (isNaN(incomeId)) {
+                console.error('Invalid income ID:', id);
+                alert('Er is een fout opgetreden bij het verwijderen van de inkomst.');
+                return;
+            }
             
             // Filter out the income with the matching id
-            incomes = incomes.filter(income => income.id !== incomeId);
+            const originalLength = incomes.length;
+            incomes = incomes.filter(income => Number(income.id) !== incomeId);
+            
+            // Check if an item was actually removed
+            if (incomes.length === originalLength) {
+                console.warn('No income found with ID:', incomeId);
+            }
             
             // Save to localStorage
             saveToLocalStorage();
@@ -1444,11 +1457,24 @@ function editExpense(id) {
 function deleteExpense(id) {
     try {
         if (confirm('Weet je zeker dat je deze uitgave wilt verwijderen?')) {
-            // Convert id to number if it's a string
-            const expenseId = typeof id === 'string' ? parseInt(id) : id;
+            // Ensure id is a number
+            const expenseId = Number(id);
+            
+            // Validate that we have a valid number
+            if (isNaN(expenseId)) {
+                console.error('Invalid expense ID:', id);
+                alert('Er is een fout opgetreden bij het verwijderen van de uitgave.');
+                return;
+            }
             
             // Filter out the expense with the matching id
-            expenses = expenses.filter(expense => expense.id !== expenseId);
+            const originalLength = expenses.length;
+            expenses = expenses.filter(expense => Number(expense.id) !== expenseId);
+            
+            // Check if an item was actually removed
+            if (expenses.length === originalLength) {
+                console.warn('No expense found with ID:', expenseId);
+            }
             
             // Save to localStorage
             saveToLocalStorage();
@@ -1470,11 +1496,24 @@ function editBudget(id) {
 function deleteBudget(id) {
     try {
         if (confirm('Weet je zeker dat je dit budget wilt verwijderen?')) {
-            // Convert id to number if it's a string
-            const budgetId = typeof id === 'string' ? parseInt(id) : id;
+            // Ensure id is a number
+            const budgetId = Number(id);
+            
+            // Validate that we have a valid number
+            if (isNaN(budgetId)) {
+                console.error('Invalid budget ID:', id);
+                alert('Er is een fout opgetreden bij het verwijderen van het budget.');
+                return;
+            }
             
             // Filter out the budget with the matching id
-            budgets = budgets.filter(budget => budget.id !== budgetId);
+            const originalLength = budgets.length;
+            budgets = budgets.filter(budget => Number(budget.id) !== budgetId);
+            
+            // Check if an item was actually removed
+            if (budgets.length === originalLength) {
+                console.warn('No budget found with ID:', budgetId);
+            }
             
             // Save to localStorage
             saveToLocalStorage();
@@ -1496,11 +1535,24 @@ function editGoal(id) {
 function deleteGoal(id) {
     try {
         if (confirm('Weet je zeker dat je dit doel wilt verwijderen?')) {
-            // Convert id to number if it's a string
-            const goalId = typeof id === 'string' ? parseInt(id) : id;
+            // Ensure id is a number
+            const goalId = Number(id);
+            
+            // Validate that we have a valid number
+            if (isNaN(goalId)) {
+                console.error('Invalid goal ID:', id);
+                alert('Er is een fout opgetreden bij het verwijderen van het doel.');
+                return;
+            }
             
             // Filter out the goal with the matching id
-            goals = goals.filter(goal => goal.id !== goalId);
+            const originalLength = goals.length;
+            goals = goals.filter(goal => Number(goal.id) !== goalId);
+            
+            // Check if an item was actually removed
+            if (goals.length === originalLength) {
+                console.warn('No goal found with ID:', goalId);
+            }
             
             // Save to localStorage
             saveToLocalStorage();
@@ -1522,11 +1574,24 @@ function editDebt(id) {
 function deleteDebt(id) {
     try {
         if (confirm('Weet je zeker dat je deze schuld wilt verwijderen?')) {
-            // Convert id to number if it's a string
-            const debtId = typeof id === 'string' ? parseInt(id) : id;
+            // Ensure id is a number
+            const debtId = Number(id);
+            
+            // Validate that we have a valid number
+            if (isNaN(debtId)) {
+                console.error('Invalid debt ID:', id);
+                alert('Er is een fout opgetreden bij het verwijderen van de schuld.');
+                return;
+            }
             
             // Filter out the debt with the matching id
-            debts = debts.filter(debt => debt.id !== debtId);
+            const originalLength = debts.length;
+            debts = debts.filter(debt => Number(debt.id) !== debtId);
+            
+            // Check if an item was actually removed
+            if (debts.length === originalLength) {
+                console.warn('No debt found with ID:', debtId);
+            }
             
             // Save to localStorage
             saveToLocalStorage();
@@ -1560,11 +1625,24 @@ function editRepayment(id) {
 function deleteRepayment(id) {
     try {
         if (confirm('Weet je zeker dat je deze terugbetaling wilt verwijderen?')) {
-            // Convert id to number if it's a string
-            const repaymentId = typeof id === 'string' ? parseInt(id) : id;
+            // Ensure id is a number
+            const repaymentId = Number(id);
+            
+            // Validate that we have a valid number
+            if (isNaN(repaymentId)) {
+                console.error('Invalid repayment ID:', id);
+                alert('Er is een fout opgetreden bij het verwijderen van de terugbetaling.');
+                return;
+            }
             
             // Filter out the repayment with the matching id
+            const originalLength = repayments.length;
             repayments = repayments.filter(repayment => repayment.id !== repaymentId);
+            
+            // Check if an item was actually removed
+            if (repayments.length === originalLength) {
+                console.warn('No repayment found with ID:', repaymentId);
+            }
             
             // Save to localStorage
             saveToLocalStorage();

@@ -27,7 +27,16 @@ FinSight is a personal finance management application that helps users track inc
 
 You can download the latest APK directly from our [Releases page](https://github.com/Mura0908/finsight-app-New/releases/latest).
 
-Alternatively, you can download the APK from our [download page](app/src/main/assets/download.html) within the app, or by accessing the download.html file after deploying the assets to a web server.
+Alternatively, you can run a local web server to host the APK:
+1. Install Node.js from https://nodejs.org/
+2. In the project directory, run:
+   ```
+   npm install
+   npm start
+   ```
+3. Open your browser and go to http://localhost:3000
+
+You can also download the APK from our [download page](app/src/main/assets/download.html) within the app, or by accessing the download.html file after deploying the assets to a web server.
 
 For direct access, deploy the contents of `app/src/main/assets/` to a web server and navigate to the download.html page.
 
@@ -50,6 +59,22 @@ This repository uses GitHub Actions to automatically build and release the APK:
 - The APK is automatically attached to a new release with a version tag
 - You can download the latest APK from the [Releases page](https://github.com/Mura0908/finsight-app-New/releases/latest)
 
+## Local Web Server
+
+To run a local web server for hosting the APK:
+
+1. Install Node.js from https://nodejs.org/
+2. In the project directory, run:
+   ```
+   npm install
+   npm start
+   ```
+3. Open your browser and go to http://localhost:3000
+
+The server will serve:
+- The download page at the root URL
+- The APK file at /app-debug.apk
+
 ## Usage
 
 1. Set up your password for the secure repayments section
@@ -70,7 +95,7 @@ This repository uses GitHub Actions to automatically build and release the APK:
 ## Project Structure
 
 ```
-finsight-app-New/
+finsight-app/
 ├── app/
 │   ├── src/
 │   │   ├── main/
