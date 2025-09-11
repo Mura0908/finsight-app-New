@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Tab Test</title>
+    <style>
+        /* Simple tab styles */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .nav-btn {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .nav-btn.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .tab-content {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with app name and navigation -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Tab Navigation Test</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-btn" data-tab="income">
+                        <span>Inkomsten</span>
+                    </button>
+                    <button class="nav-btn" data-tab="expenses">
+                        <span>Uitgaven</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <h2>Dashboard Content</h2>
+                <p>This is the dashboard content.</p>
+            </section>
+
+            <!-- Income Tab -->
+            <section id="income" class="tab-content">
+                <h2>Income Content</h2>
+                <p>This is the income content.</p>
+            </section>
+
+            <!-- Expenses Tab -->
+            <section id="expenses" class="tab-content">
+                <h2>Expenses Content</h2>
+                <p>This is the expenses content.</p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing app');
+            
+            // Set up tab navigation
+            setupTabNavigation();
+            
+            console.log('App initialization completed');
+        });
+
+        // Set up tab navigation
+        function setupTabNavigation() {
+            console.log('Setting up tab navigation');
+            
+            // Get all tab buttons
+            const tabButtons = document.querySelectorAll('.nav-btn');
+            console.log('Found tab buttons:', tabButtons.length);
+            
+            // Add click event to each tab button
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('Tab clicked:', tabName);
+                    
+                    // Show the selected tab
+                    showTab(tabName);
+                });
+            });
+            
+            // Show dashboard by default
+            showTab('dashboard');
+        }
+
+        // Show a specific tab
+        function showTab(tabName) {
+            console.log('Showing tab:', tabName);
+            
+            // Hide all tab contents
+            const allContents = document.querySelectorAll('.tab-content');
+            allContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Remove active class from all buttons
+            const allButtons = document.querySelectorAll('.nav-btn');
+            allButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            const tabContent = document.getElementById(tabName);
+            if (tabContent) {
+                tabContent.style.display = 'block';
+                console.log('Displayed content for tab:', tabName);
+            }
+            
+            // Add active class to the clicked button
+            const activeButton = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                console.log('Activated button for tab:', tabName);
+            }
+            
+            console.log('Tab display completed for:', tabName);
+        }
+    </script>
+</body>
+</html>

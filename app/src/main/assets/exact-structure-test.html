@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exact Structure Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Simple tab styles */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .nav-btn {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+        .nav-btn.active {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with app name and navigation -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> FinSight</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-btn" data-tab="income">
+                        <i class="fas fa-wallet"></i>
+                        <span>Inkomsten</span>
+                    </button>
+                    <button class="nav-btn" data-tab="expenses">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Uitgaven</span>
+                    </button>
+                    <button class="nav-btn" data-tab="budgets">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>Budgetten</span>
+                    </button>
+                    <button class="nav-btn" data-tab="goals">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Doelen</span>
+                    </button>
+                    <button class="nav-btn" data-tab="debts">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Schulden</span>
+                    </button>
+                    <button class="nav-btn" data-tab="repayments">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Terugbetalingen</span>
+                    </button>
+                    <button class="nav-btn" data-tab="categories">
+                        <i class="fas fa-tags"></i>
+                        <span>Categorieën</span>
+                    </button>
+                    <button class="nav-btn" data-tab="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Rapporten</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                </div>
+                <p>This is the dashboard content.</p>
+            </section>
+
+            <!-- Income Tab -->
+            <section id="income" class="tab-content">
+                <div class="section-header">
+                    <h2>Inkomsten beheren</h2>
+                </div>
+                <p>This is the income content.</p>
+            </section>
+
+            <!-- Expenses Tab -->
+            <section id="expenses" class="tab-content">
+                <div class="section-header">
+                    <h2>Uitgaven bijhouden</h2>
+                </div>
+                <p>This is the expenses content.</p>
+            </section>
+
+            <!-- Budgets Tab -->
+            <section id="budgets" class="tab-content">
+                <div class="section-header">
+                    <h2>Budgetten instellen</h2>
+                </div>
+                <p>This is the budgets content.</p>
+            </section>
+
+            <!-- Goals Tab -->
+            <section id="goals" class="tab-content">
+                <div class="section-header">
+                    <h2>Spaardoelen</h2>
+                </div>
+                <p>This is the goals content.</p>
+            </section>
+
+            <!-- Debts Tab -->
+            <section id="debts" class="tab-content">
+                <div class="section-header">
+                    <h2>Schuldenbeheer</h2>
+                </div>
+                <p>This is the debts content.</p>
+            </section>
+
+            <!-- Repayments Tab -->
+            <section id="repayments" class="tab-content">
+                <div class="section-header">
+                    <h2>Terugbetalingen aan Vrienden/Familie</h2>
+                </div>
+                <p>This is the repayments content.</p>
+            </section>
+
+            <!-- Categories Tab -->
+            <section id="categories" class="tab-content">
+                <div class="section-header">
+                    <h2>Categorieën beheren</h2>
+                </div>
+                <p>This is the categories content.</p>
+            </section>
+
+            <!-- Reports Tab -->
+            <section id="reports" class="tab-content">
+                <div class="section-header">
+                    <h2>Analyse en rapporten</h2>
+                </div>
+                <p>This is the reports content.</p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing app');
+            
+            // Set up tab navigation
+            setupTabNavigation();
+            
+            console.log('App initialization completed');
+        });
+
+        // Set up tab navigation
+        function setupTabNavigation() {
+            console.log('Setting up tab navigation');
+            
+            // Get all tab buttons
+            const tabButtons = document.querySelectorAll('.nav-btn');
+            console.log('Found tab buttons:', tabButtons.length);
+            
+            // Add click event to each tab button
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('Tab clicked:', tabName);
+                    
+                    // Show the selected tab
+                    showTab(tabName);
+                });
+            });
+            
+            // Show dashboard by default
+            showTab('dashboard');
+        }
+
+        // Show a specific tab
+        function showTab(tabName) {
+            console.log('Showing tab:', tabName);
+            
+            // Hide all tab contents
+            const allContents = document.querySelectorAll('.tab-content');
+            allContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Remove active class from all buttons
+            const allButtons = document.querySelectorAll('.nav-btn');
+            allButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            const tabContent = document.getElementById(tabName);
+            if (tabContent) {
+                tabContent.style.display = 'block';
+                console.log('Displayed content for tab:', tabName);
+            }
+            
+            // Add active class to the clicked button
+            const activeButton = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                console.log('Activated button for tab:', tabName);
+            }
+            
+            console.log('Tab display completed for:', tabName);
+        }
+    </script>
+</body>
+</html>
