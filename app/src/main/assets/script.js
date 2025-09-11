@@ -1,55 +1,18 @@
-// FinSight Budget App JavaScript
-
-// Data arrays
-let incomes = [];
-let expenses = [];
-let budgets = [];
-let goals = [];
-let debts = [];
-let repayments = [];
-let categories = {
-    income: [
-        { id: 'salary', name: 'Salaris', description: '', icon: '' },
-        { id: 'freelance', name: 'Freelance', description: '', icon: '' },
-        { id: 'investment', name: 'Investeringen', description: '', icon: '' },
-        { id: 'gift', name: 'Geschenken', description: '', icon: '' },
-        { id: 'other', name: 'Overige', description: '', icon: '' }
-    ],
-    expense: [
-        { id: 'groceries', name: 'Boodschappen', description: '', icon: '' },
-        { id: 'rent', name: 'Huur', description: '', icon: '' },
-        { id: 'utilities', name: 'Nutsvoorzieningen', description: '', icon: '' },
-        { id: 'transport', name: 'Vervoer', description: '', icon: '' },
-        { id: 'entertainment', name: 'Entertainment', description: '', icon: '' },
-        { id: 'healthcare', name: 'Gezondheidszorg', description: '', icon: '' },
-        { id: 'education', name: 'Onderwijs', description: '', icon: '' },
-        { id: 'other', name: 'Overige', description: '', icon: '' }
-    ]
-};
-
-// Add new array for month closures
-let monthClosures = [];
+// FinSight Budget App JavaScript - Simplified Tab Navigation
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing app');
     
-    // Set up tab navigation
-    setupTabNavigation();
-    
-    // Initialize other components
-    initializeApp();
-    setupEventListeners();
-    loadFromLocalStorage();
-    updateDashboard();
-    updateCategorySelectors();
+    // Set up simplified tab navigation
+    setupSimpleTabNavigation();
     
     console.log('App initialization completed');
 });
 
-// Set up tab navigation
-function setupTabNavigation() {
-    console.log('Setting up tab navigation');
+// Set up simplified tab navigation
+function setupSimpleTabNavigation() {
+    console.log('Setting up simplified tab navigation');
     
     // Get all tab buttons
     const tabButtons = document.querySelectorAll('.nav-btn');
@@ -61,76 +24,46 @@ function setupTabNavigation() {
             e.preventDefault();
             const tabName = this.getAttribute('data-tab');
             console.log('Tab clicked:', tabName);
-            switchToTab(tabName);
+            
+            // Show the selected tab
+            showTab(tabName);
         });
     });
 }
 
-// Switch to a specific tab
-function switchToTab(tabName) {
-    console.log('Switching to tab:', tabName);
+// Show a specific tab
+function showTab(tabName) {
+    console.log('Showing tab:', tabName);
     
-    // Get all tab buttons and contents
-    const tabButtons = document.querySelectorAll('.nav-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+    // Hide all tab contents
+    const allContents = document.querySelectorAll('.tab-content');
+    allContents.forEach(content => {
+        content.style.display = 'none';
+    });
     
-    // Remove active class from all buttons and contents
-    tabButtons.forEach(button => button.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
+    // Remove active class from all buttons
+    const allButtons = document.querySelectorAll('.nav-btn');
+    allButtons.forEach(button => {
+        button.classList.remove('active');
+    });
     
-    // Add active class to clicked button
+    // Show the selected tab content
+    const tabContent = document.getElementById(tabName);
+    if (tabContent) {
+        tabContent.style.display = 'block';
+        console.log('Displayed content for tab:', tabName);
+    }
+    
+    // Add active class to the clicked button
     const activeButton = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
     if (activeButton) {
         activeButton.classList.add('active');
         console.log('Activated button for tab:', tabName);
     }
     
-    // Show the corresponding content
-    const activeContent = document.getElementById(tabName);
-    if (activeContent) {
-        activeContent.classList.add('active');
-        console.log('Activated content for tab:', tabName);
-    }
-    
-    // Close all forms when switching tabs
-    closeAllForms();
-    
-    // Special handling for specific tabs
-    switch(tabName) {
-        case 'repayments':
-            handleRepaymentsTab();
-            break;
-        case 'categories':
-            updateCategoriesTable();
-            break;
-        case 'dashboard':
-            updateDashboard();
-            break;
-        case 'income':
-            updateIncomeTable();
-            break;
-        case 'expenses':
-            updateExpenseTable();
-            break;
-        case 'budgets':
-            updateBudgetsList();
-            break;
-        case 'goals':
-            updateGoalsList();
-            break;
-        case 'debts':
-            updateDebtsList();
-            break;
-        case 'reports':
-            updateReports();
-            break;
-    }
-    
-    console.log('Tab switching completed for:', tabName);
+    console.log('Tab display completed for:', tabName);
 }
 
-// Initialize the app
-function initializeApp() {
     // Set default dates
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('income-date').value = today;
