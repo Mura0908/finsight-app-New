@@ -67,10 +67,10 @@ function setupTabNavigation() {
 function showTab(tabName) {
     console.log('Showing tab:', tabName);
     
-    // Hide all tab contents
+    // Hide all tab contents using CSS classes
     const allContents = document.querySelectorAll('.tab-content');
     allContents.forEach(content => {
-        content.style.display = 'none';
+        content.classList.remove('active');
     });
     
     // Remove active class from all buttons
@@ -82,7 +82,7 @@ function showTab(tabName) {
     // Show the selected tab content
     const tabContent = document.getElementById(tabName);
     if (tabContent) {
-        tabContent.style.display = 'block';
+        tabContent.classList.add('active');
         console.log('Displayed content for tab:', tabName);
     }
     
