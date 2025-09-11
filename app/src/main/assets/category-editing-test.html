@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Editing Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .test-result.success {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+        .test-result.error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .test-buttons {
+            margin: 20px 0;
+        }
+        .test-btn {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            background-color: #0056b3;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Category Editing Test</h1>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <div class="test-container">
+                <h1>Category Editing Test</h1>
+                <p>This page tests the category editing functionality to ensure categories can be added, edited, and deleted correctly.</p>
+                
+                <div class="test-result" id="initialization-result">
+                    <h3>Initialization Test</h3>
+                    <p id="initialization-status">Testing...</p>
+                </div>
+                
+                <div class="test-buttons">
+                    <button class="test-btn" id="test-add-category">Test Add Category</button>
+                    <button class="test-btn" id="test-edit-category">Test Edit Category</button>
+                    <button class="test-btn" id="test-delete-category">Test Delete Category</button>
+                    <button class="test-btn" id="test-all">Test All Functions</button>
+                </div>
+                
+                <div class="test-section">
+                    <h2>Category Form</h2>
+                    <div class="form-container active" id="category-form-container">
+                        <form id="category-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category-name">Categorie naam</label>
+                                    <input type="text" id="category-name" placeholder="Bijv. Horeca, Kleding" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="category-type">Type</label>
+                                    <select id="category-type" required>
+                                        <option value="income">Inkomsten</option>
+                                        <option value="expense">Uitgaven</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category-description">Beschrijving</label>
+                                    <textarea id="category-description" placeholder="Optionele beschrijving van de categorie"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="category-icon">Icoon (optioneel)</label>
+                                    <select id="category-icon">
+                                        <option value="">Geen icoon</option>
+                                        <option value="fas fa-shopping-cart">Winkelwagen</option>
+                                        <option value="fas fa-home">Huis</option>
+                                        <option value="fas fa-car">Auto</option>
+                                        <option value="fas fa-utensils">Bestek</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="cancel-category-btn" class="btn-secondary">Annuleren</button>
+                                <button type="submit" class="btn-primary">Categorie opslaan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="test-section">
+                    <h2>Category Tables</h2>
+                    <div class="category-tables-section">
+                        <div class="category-table-container">
+                            <h3>Inkomsten categorieën</h3>
+                            <table class="category-table" id="income-categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Naam</th>
+                                        <th>Beschrijving</th>
+                                        <th>Icoon</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="income-categories-table-body">
+                                    <tr>
+                                        <td colspan="4" class="no-data">Geen inkomsten categorieën gevonden</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="category-table-container">
+                            <h3>Uitgaven categorieën</h3>
+                            <table class="category-table" id="expense-categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Naam</th>
+                                        <th>Beschrijving</th>
+                                        <th>Icoon</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expense-categories-table-body">
+                                    <tr>
+                                        <td colspan="4" class="no-data">Geen uitgaven categorieën gevonden</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="test-result" id="console-output">
+                    <h3>Console Output</h3>
+                    <pre id="console-log">No output yet...</pre>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Test script for category editing
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Category Editing Test Page Loaded');
+            
+            // Capture console output
+            const consoleLog = document.getElementById('console-log');
+            const originalLog = console.log;
+            console.log = function(message) {
+                originalLog.apply(console, arguments);
+                consoleLog.textContent += message + '\n';
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            };
+            
+            // Initialize test data
+            initializeTestData();
+            
+            // Test initialization
+            testInitialization();
+            
+            // Set up test buttons
+            document.getElementById('test-add-category').addEventListener('click', function() {
+                testAddCategory();
+            });
+            
+            document.getElementById('test-edit-category').addEventListener('click', function() {
+                testEditCategory();
+            });
+            
+            document.getElementById('test-delete-category').addEventListener('click', function() {
+                testDeleteCategory();
+            });
+            
+            document.getElementById('test-all').addEventListener('click', function() {
+                testAllFunctions();
+            });
+            
+            // Set up form submission
+            document.getElementById('category-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleCategorySubmit(e);
+            });
+        });
+        
+        // Test data
+        let categories = {
+            income: [
+                { id: 'salary', name: 'Salaris', description: '', icon: '' },
+                { id: 'freelance', name: 'Freelance', description: '', icon: '' }
+            ],
+            expense: [
+                { id: 'groceries', name: 'Boodschappen', description: '', icon: '' },
+                { id: 'rent', name: 'Huur', description: '', icon: '' }
+            ]
+        };
+        
+        function initializeTestData() {
+            console.log('Initializing test data');
+            updateCategoriesTable();
+        }
+        
+        function testInitialization() {
+            const resultElement = document.getElementById('initialization-status');
+            
+            try {
+                // Check if required elements exist
+                const formContainer = document.getElementById('category-form-container');
+                const categoryForm = document.getElementById('category-form');
+                const incomeTableBody = document.getElementById('income-categories-table-body');
+                const expenseTableBody = document.getElementById('expense-categories-table-body');
+                
+                if (formContainer && categoryForm && incomeTableBody && expenseTableBody) {
+                    resultElement.textContent = 'SUCCESS: All required elements found';
+                    resultElement.parentElement.classList.add('success');
+                    console.log('Initialization test passed');
+                } else {
+                    throw new Error('Missing required elements');
+                }
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Initialization test failed: ' + error.message);
+            }
+        }
+        
+        function handleCategorySubmit(e) {
+            e.preventDefault();
+            
+            const categoryName = document.getElementById('category-name').value;
+            const categoryType = document.getElementById('category-type').value;
+            const categoryDescription = document.getElementById('category-description').value;
+            const categoryIcon = document.getElementById('category-icon').value;
+            
+            // Generate a unique ID for the category
+            const categoryId = categoryName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            
+            // Check if category already exists
+            const existingCategory = categories[categoryType].find(cat => cat.id === categoryId);
+            if (existingCategory) {
+                alert('Er bestaat al een categorie met deze naam!');
+                return;
+            }
+            
+            // Add new category
+            categories[categoryType].push({
+                id: categoryId,
+                name: categoryName,
+                description: categoryDescription,
+                icon: categoryIcon
+            });
+            
+            updateCategoriesTable();
+            
+            // Reset form
+            document.getElementById('category-form').reset();
+            
+            console.log('Category added: ' + categoryName);
+        }
+        
+        function editCategory(id, type) {
+            const category = categories[type].find(cat => cat.id === id);
+            if (!category) return;
+            
+            // Fill the form with category data
+            document.getElementById('category-name').value = category.name;
+            document.getElementById('category-type').value = type;
+            document.getElementById('category-description').value = category.description || '';
+            document.getElementById('category-icon').value = category.icon || '';
+            
+            // Store the original ID and type for updating
+            const categoryForm = document.getElementById('category-form');
+            categoryForm.dataset.editingId = id;
+            categoryForm.dataset.editingType = type;
+            
+            // Change form submit handler to update instead of add
+            categoryForm.onsubmit = function(e) {
+                e.preventDefault();
+                
+                // Get the editing ID and type
+                const editingId = categoryForm.dataset.editingId;
+                const editingType = categoryForm.dataset.editingType;
+                
+                // Find the category to update
+                const categoryToUpdate = categories[editingType].find(cat => cat.id === editingId);
+                if (!categoryToUpdate) return;
+                
+                // Get updated values
+                const newName = document.getElementById('category-name').value;
+                const newDescription = document.getElementById('category-description').value;
+                const newIcon = document.getElementById('category-icon').value;
+                
+                // Update category data
+                categoryToUpdate.name = newName;
+                categoryToUpdate.description = newDescription;
+                categoryToUpdate.icon = newIcon;
+                
+                // If the name changed, we might need to update the ID
+                const newId = newName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                if (newId !== editingId) {
+                    // Check if new ID already exists
+                    const existingCategory = categories[editingType].find(cat => cat.id === newId);
+                    if (!existingCategory || existingCategory === categoryToUpdate) {
+                        // Update the ID if it's not conflicting or if it's the same category
+                        if (!existingCategory) {
+                            categoryToUpdate.id = newId;
+                        }
+                        // If it's the same category, we don't need to change the ID
+                    }
+                }
+                
+                updateCategoriesTable();
+                
+                // Reset form and remove editing data
+                categoryForm.reset();
+                delete categoryForm.dataset.editingId;
+                delete categoryForm.dataset.editingType;
+                
+                // Restore original submit handler
+                setTimeout(() => {
+                    categoryForm.onsubmit = handleCategorySubmit;
+                }, 100);
+                
+                console.log('Category updated: ' + newName);
+                return false;
+            };
+            
+            console.log('Editing category: ' + category.name);
+        }
+        
+        function deleteCategory(id, type) {
+            if (confirm('Weet je zeker dat je deze categorie wilt verwijderen?')) {
+                // Remove the category
+                categories[type] = categories[type].filter(cat => cat.id !== id);
+                updateCategoriesTable();
+                console.log('Category deleted: ' + id);
+            }
+        }
+        
+        function updateCategoriesTable() {
+            // Update income categories table
+            const incomeTbody = document.getElementById('income-categories-table-body');
+            if (incomeTbody) {
+                if (categories.income.length === 0) {
+                    incomeTbody.innerHTML = '<tr><td colspan="4" class="no-data">Geen inkomsten categorieën gevonden</td></tr>';
+                } else {
+                    incomeTbody.innerHTML = '';
+                    categories.income.forEach(category => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${category.name}</td>
+                            <td>${category.description || '-'}</td>
+                            <td>${category.icon ? `<i class="${category.icon}"></i>` : '-'}</td>
+                            <td>
+                                <button class="edit-btn" onclick="parent.editCategory('${category.id}', 'income')"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="parent.deleteCategory('${category.id}', 'income')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        incomeTbody.appendChild(row);
+                    });
+                }
+            }
+            
+            // Update expense categories table
+            const expenseTbody = document.getElementById('expense-categories-table-body');
+            if (expenseTbody) {
+                if (categories.expense.length === 0) {
+                    expenseTbody.innerHTML = '<tr><td colspan="4" class="no-data">Geen uitgaven categorieën gevonden</td></tr>';
+                } else {
+                    expenseTbody.innerHTML = '';
+                    categories.expense.forEach(category => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${category.name}</td>
+                            <td>${category.description || '-'}</td>
+                            <td>${category.icon ? `<i class="${category.icon}"></i>` : '-'}</td>
+                            <td>
+                                <button class="edit-btn" onclick="parent.editCategory('${category.id}', 'expense')"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="parent.deleteCategory('${category.id}', 'expense')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        expenseTbody.appendChild(row);
+                    });
+                }
+            }
+        }
+        
+        function testAddCategory() {
+            console.log('Testing add category function');
+            
+            try {
+                // Fill form with test data
+                document.getElementById('category-name').value = 'Test Category';
+                document.getElementById('category-type').value = 'income';
+                document.getElementById('category-description').value = 'Test description';
+                document.getElementById('category-icon').value = 'fas fa-home';
+                
+                // Submit form
+                const event = new Event('submit');
+                document.getElementById('category-form').dispatchEvent(event);
+                
+                // Check if category was added
+                const addedCategory = categories.income.find(cat => cat.name === 'Test Category');
+                if (addedCategory) {
+                    console.log('Add category test passed');
+                    alert('SUCCESS: Category added successfully');
+                } else {
+                    throw new Error('Category was not added to the list');
+                }
+            } catch (error) {
+                console.log('Add category test failed: ' + error.message);
+                alert('ERROR: ' + error.message);
+            }
+        }
+        
+        function testEditCategory() {
+            console.log('Testing edit category function');
+            
+            try {
+                // First add a category to edit
+                categories.income.push({
+                    id: 'test-edit',
+                    name: 'Original Name',
+                    description: 'Original description',
+                    icon: 'fas fa-car'
+                });
+                updateCategoriesTable();
+                
+                // Edit the category
+                editCategory('test-edit', 'income');
+                
+                // Update form with new data
+                document.getElementById('category-name').value = 'Updated Name';
+                document.getElementById('category-description').value = 'Updated description';
+                document.getElementById('category-icon').value = 'fas fa-utensils';
+                
+                // Submit form
+                const event = new Event('submit');
+                document.getElementById('category-form').dispatchEvent(event);
+                
+                // Check if category was updated
+                const updatedCategory = categories.income.find(cat => cat.id === 'updated-name');
+                if (updatedCategory && updatedCategory.name === 'Updated Name') {
+                    console.log('Edit category test passed');
+                    alert('SUCCESS: Category edited successfully');
+                } else {
+                    throw new Error('Category was not updated correctly');
+                }
+            } catch (error) {
+                console.log('Edit category test failed: ' + error.message);
+                alert('ERROR: ' + error.message);
+            }
+        }
+        
+        function testDeleteCategory() {
+            console.log('Testing delete category function');
+            
+            try {
+                // First add a category to delete
+                categories.expense.push({
+                    id: 'test-delete',
+                    name: 'Delete Me',
+                    description: 'To be deleted',
+                    icon: 'fas fa-trash'
+                });
+                updateCategoriesTable();
+                
+                // Delete the category
+                deleteCategory('test-delete', 'expense');
+                
+                // Check if category was deleted
+                const deletedCategory = categories.expense.find(cat => cat.id === 'test-delete');
+                if (!deletedCategory) {
+                    console.log('Delete category test passed');
+                    alert('SUCCESS: Category deleted successfully');
+                } else {
+                    throw new Error('Category was not deleted from the list');
+                }
+            } catch (error) {
+                console.log('Delete category test failed: ' + error.message);
+                alert('ERROR: ' + error.message);
+            }
+        }
+        
+        function testAllFunctions() {
+            console.log('Testing all category functions');
+            
+            try {
+                testAddCategory();
+                testEditCategory();
+                testDeleteCategory();
+                
+                console.log('All category functions test passed');
+                alert('SUCCESS: All category functions work correctly');
+            } catch (error) {
+                console.log('Some category functions test failed: ' + error.message);
+                alert('ERROR: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

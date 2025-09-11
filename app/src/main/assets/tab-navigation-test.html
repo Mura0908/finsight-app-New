@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Navigation Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .test-result.success {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+        .test-result.error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .test-buttons {
+            margin: 20px 0;
+        }
+        .test-btn {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with app name and navigation -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Tab Navigation Test</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-btn" data-tab="income">
+                        <i class="fas fa-wallet"></i>
+                        <span>Inkomsten</span>
+                    </button>
+                    <button class="nav-btn" data-tab="expenses">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Uitgaven</span>
+                    </button>
+                    <button class="nav-btn" data-tab="categories">
+                        <i class="fas fa-tags"></i>
+                        <span>Categorieën</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <div class="test-container">
+                <h1>Tab Navigation Test</h1>
+                <p>This page tests the tab navigation functionality to ensure all tabs work correctly.</p>
+                
+                <div class="test-result" id="initialization-result">
+                    <h3>Initialization Test</h3>
+                    <p id="initialization-status">Testing...</p>
+                </div>
+                
+                <div class="test-result" id="navigation-result">
+                    <h3>Navigation Test</h3>
+                    <p id="navigation-status">Waiting for tests to run...</p>
+                </div>
+                
+                <div class="test-buttons">
+                    <button class="test-btn" id="test-dashboard">Test Dashboard Tab</button>
+                    <button class="test-btn" id="test-income">Test Income Tab</button>
+                    <button class="test-btn" id="test-expenses">Test Expenses Tab</button>
+                    <button class="test-btn" id="test-categories">Test Categories Tab</button>
+                    <button class="test-btn" id="test-all">Test All Tabs</button>
+                </div>
+                
+                <div class="test-result" id="console-output">
+                    <h3>Console Output</h3>
+                    <pre id="console-log">No output yet...</pre>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                </div>
+                <p>This is the dashboard content. You should see this when the Dashboard tab is active.</p>
+            </section>
+
+            <!-- Income Tab -->
+            <section id="income" class="tab-content">
+                <div class="section-header">
+                    <h2>Inkomsten</h2>
+                </div>
+                <p>This is the income content. You should see this when the Income tab is active.</p>
+            </section>
+
+            <!-- Expenses Tab -->
+            <section id="expenses" class="tab-content">
+                <div class="section-header">
+                    <h2>Uitgaven</h2>
+                </div>
+                <p>This is the expenses content. You should see this when the Expenses tab is active.</p>
+            </section>
+
+            <!-- Categories Tab -->
+            <section id="categories" class="tab-content">
+                <div class="section-header">
+                    <h2>Categorieën</h2>
+                </div>
+                <p>This is the categories content. You should see this when the Categories tab is active.</p>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test script for tab navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Tab Navigation Test Page Loaded');
+            
+            // Capture console output
+            const consoleLog = document.getElementById('console-log');
+            const originalLog = console.log;
+            console.log = function(message) {
+                originalLog.apply(console, arguments);
+                consoleLog.textContent += message + '\n';
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            };
+            
+            // Test initialization
+            testInitialization();
+            
+            // Set up test buttons
+            document.getElementById('test-dashboard').addEventListener('click', function() {
+                testTabNavigation('dashboard');
+            });
+            
+            document.getElementById('test-income').addEventListener('click', function() {
+                testTabNavigation('income');
+            });
+            
+            document.getElementById('test-expenses').addEventListener('click', function() {
+                testTabNavigation('expenses');
+            });
+            
+            document.getElementById('test-categories').addEventListener('click', function() {
+                testTabNavigation('categories');
+            });
+            
+            document.getElementById('test-all').addEventListener('click', function() {
+                testAllTabs();
+            });
+        });
+        
+        function testInitialization() {
+            const resultElement = document.getElementById('initialization-status');
+            
+            try {
+                // Check if required elements exist
+                const dashboardTab = document.getElementById('dashboard');
+                const incomeTab = document.getElementById('income');
+                const expensesTab = document.getElementById('expenses');
+                const categoriesTab = document.getElementById('categories');
+                
+                const dashboardBtn = document.querySelector('.nav-btn[data-tab="dashboard"]');
+                const incomeBtn = document.querySelector('.nav-btn[data-tab="income"]');
+                const expensesBtn = document.querySelector('.nav-btn[data-tab="expenses"]');
+                const categoriesBtn = document.querySelector('.nav-btn[data-tab="categories"]');
+                
+                if (dashboardTab && incomeTab && expensesTab && categoriesTab &&
+                    dashboardBtn && incomeBtn && expensesBtn && categoriesBtn) {
+                    
+                    resultElement.textContent = 'SUCCESS: All required elements found';
+                    resultElement.parentElement.classList.add('success');
+                    console.log('Initialization test passed');
+                } else {
+                    throw new Error('Missing required elements');
+                }
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Initialization test failed: ' + error.message);
+            }
+        }
+        
+        function testTabNavigation(tabName) {
+            const resultElement = document.getElementById('navigation-status');
+            
+            try {
+                console.log('Testing navigation to tab: ' + tabName);
+                
+                // Find the tab button
+                const tabButton = document.querySelector('.nav-btn[data-tab="' + tabName + '"]');
+                if (!tabButton) {
+                    throw new Error('Tab button not found for: ' + tabName);
+                }
+                
+                // Simulate click
+                tabButton.click();
+                
+                // Check if the tab content is displayed
+                const tabContent = document.getElementById(tabName);
+                if (!tabContent) {
+                    throw new Error('Tab content not found for: ' + tabName);
+                }
+                
+                // Check if the tab content has the active class
+                if (!tabContent.classList.contains('active')) {
+                    throw new Error('Tab content is not active for: ' + tabName);
+                }
+                
+                // Check if the button has the active class
+                if (!tabButton.classList.contains('active')) {
+                    throw new Error('Tab button is not active for: ' + tabName);
+                }
+                
+                resultElement.textContent = 'SUCCESS: Navigation to ' + tabName + ' tab works correctly';
+                resultElement.parentElement.classList.remove('error');
+                resultElement.parentElement.classList.add('success');
+                console.log('Navigation test passed for: ' + tabName);
+                
+                return true;
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.remove('success');
+                resultElement.parentElement.classList.add('error');
+                console.log('Navigation test failed for ' + tabName + ': ' + error.message);
+                
+                return false;
+            }
+        }
+        
+        function testAllTabs() {
+            const tabs = ['dashboard', 'income', 'expenses', 'categories'];
+            let allPassed = true;
+            
+            for (const tab of tabs) {
+                if (!testTabNavigation(tab)) {
+                    allPassed = false;
+                }
+            }
+            
+            const resultElement = document.getElementById('navigation-status');
+            if (allPassed) {
+                resultElement.textContent = 'SUCCESS: All tabs navigation works correctly';
+                resultElement.parentElement.classList.remove('error');
+                resultElement.parentElement.classList.add('success');
+                console.log('All tabs navigation test passed');
+            } else {
+                resultElement.textContent = 'ERROR: Some tabs failed navigation test';
+                resultElement.parentElement.classList.remove('success');
+                resultElement.parentElement.classList.add('error');
+                console.log('Some tabs navigation test failed');
+            }
+        }
+    </script>
+</body>
+</html>

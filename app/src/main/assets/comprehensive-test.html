@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with app name and navigation -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Comprehensive Test</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-btn" data-tab="income">
+                        <i class="fas fa-wallet"></i>
+                        <span>Inkomsten</span>
+                    </button>
+                    <button class="nav-btn" data-tab="expenses">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Uitgaven</span>
+                    </button>
+                    <button class="nav-btn" data-tab="categories">
+                        <i class="fas fa-tags"></i>
+                        <span>Categorieën</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                </div>
+                <p>This is the dashboard content.</p>
+                
+                <!-- Test summary cards -->
+                <div class="summary-cards">
+                    <div class="card income-card">
+                        <div class="card-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Inkomsten</h3>
+                            <p id="total-income">€0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="card expense-card">
+                        <div class="card-icon">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Uitgaven</h3>
+                            <p id="total-expenses">€0.00</p>
+                        </div>
+                    </div>
+
+                    <div class="card balance-card">
+                        <div class="card-icon">
+                            <i class="fas fa-euro-sign"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Saldo</h3>
+                            <p id="current-balance">€0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Income Tab -->
+            <section id="income" class="tab-content">
+                <div class="section-header">
+                    <h2>Inkomsten</h2>
+                    <button id="add-income-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuwe inkomst
+                    </button>
+                </div>
+                
+                <div class="form-container" id="income-form-container">
+                    <form id="income-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="income-description">Beschrijving</label>
+                                <input type="text" id="income-description" placeholder="Bijv. Salaris, Freelance" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="income-amount">Bedrag (€)</label>
+                                <input type="number" id="income-amount" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="income-category">Categorie</label>
+                                <select id="income-category" required>
+                                    <option value="">Selecteer categorie</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="income-date">Datum</label>
+                                <input type="date" id="income-date" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-income-btn" class="btn-secondary">Annuleren</button>
+                            <button type="submit" class="btn-primary">Inkomst toevoegen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="data-table-container">
+                    <h3>Inkomsten overzicht</h3>
+                    <table class="data-table" id="income-table">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Beschrijving</th>
+                                <th>Categorie</th>
+                                <th>Bedrag</th>
+                                <th>Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody id="income-table-body">
+                            <tr>
+                                <td colspan="5" class="no-data">Geen inkomsten gevonden</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Expenses Tab -->
+            <section id="expenses" class="tab-content">
+                <div class="section-header">
+                    <h2>Uitgaven</h2>
+                    <button id="add-expense-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuwe uitgave
+                    </button>
+                </div>
+                
+                <div class="form-container" id="expense-form-container">
+                    <form id="expense-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expense-description">Beschrijving</label>
+                                <input type="text" id="expense-description" placeholder="Bijv. Boodschappen, Huur" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expense-amount">Bedrag (€)</label>
+                                <input type="number" id="expense-amount" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expense-category">Categorie</label>
+                                <select id="expense-category" required>
+                                    <option value="">Selecteer categorie</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="expense-date">Datum</label>
+                                <input type="date" id="expense-date" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-expense-btn" class="btn-secondary">Annuleren</button>
+                            <button type="submit" class="btn-primary">Uitgave toevoegen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="data-table-container">
+                    <h3>Uitgaven overzicht</h3>
+                    <table class="data-table" id="expense-table">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Beschrijving</th>
+                                <th>Categorie</th>
+                                <th>Bedrag</th>
+                                <th>Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expense-table-body">
+                            <tr>
+                                <td colspan="5" class="no-data">Geen uitgaven gevonden</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Categories Tab -->
+            <section id="categories" class="tab-content">
+                <div class="section-header">
+                    <h2>Categorieën</h2>
+                    <button id="add-category-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuwe categorie
+                    </button>
+                </div>
+
+                <div class="categories-management">
+                    <div class="category-form-section">
+                        <h3>Categorie toevoegen/bewerken</h3>
+                        <div class="form-container" id="category-form-container">
+                            <form id="category-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="category-name">Categorie naam</label>
+                                        <input type="text" id="category-name" placeholder="Bijv. Horeca, Kleding" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category-type">Type</label>
+                                        <select id="category-type" required>
+                                            <option value="income">Inkomsten</option>
+                                            <option value="expense">Uitgaven</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="category-description">Beschrijving</label>
+                                        <textarea id="category-description" placeholder="Optionele beschrijving van de categorie"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category-icon">Icoon (optioneel)</label>
+                                        <select id="category-icon">
+                                            <option value="">Geen icoon</option>
+                                            <option value="fas fa-shopping-cart">Winkelwagen</option>
+                                            <option value="fas fa-home">Huis</option>
+                                            <option value="fas fa-car">Auto</option>
+                                            <option value="fas fa-utensils">Bestek</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" id="cancel-category-btn" class="btn-secondary">Annuleren</button>
+                                    <button type="submit" class="btn-primary">Categorie opslaan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="category-tables-section">
+                        <div class="category-table-container">
+                            <h3>Inkomsten categorieën</h3>
+                            <table class="category-table" id="income-categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Naam</th>
+                                        <th>Beschrijving</th>
+                                        <th>Icoon</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="income-categories-table-body">
+                                    <tr>
+                                        <td colspan="4" class="no-data">Geen inkomsten categorieën gevonden</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="category-table-container">
+                            <h3>Uitgaven categorieën</h3>
+                            <table class="category-table" id="expense-categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Naam</th>
+                                        <th>Beschrijving</th>
+                                        <th>Icoon</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expense-categories-table-body">
+                                    <tr>
+                                        <td colspan="4" class="no-data">Geen uitgaven categorieën gevonden</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test script to verify all functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Test page loaded');
+            
+            // Test tab navigation
+            console.log('Testing tab navigation...');
+            
+            // Test category functionality
+            console.log('Testing category functionality...');
+            
+            // Test form toggling
+            console.log('Testing form toggling...');
+            
+            // Add event listeners for form toggles
+            const addIncomeBtn = document.getElementById('add-income-btn');
+            const addExpenseBtn = document.getElementById('add-expense-btn');
+            const addCategoryBtn = document.getElementById('add-category-btn');
+            
+            if (addIncomeBtn) {
+                addIncomeBtn.addEventListener('click', function() {
+                    const formContainer = document.getElementById('income-form-container');
+                    if (formContainer) {
+                        formContainer.classList.toggle('active');
+                        console.log('Income form toggled');
+                    }
+                });
+            }
+            
+            if (addExpenseBtn) {
+                addExpenseBtn.addEventListener('click', function() {
+                    const formContainer = document.getElementById('expense-form-container');
+                    if (formContainer) {
+                        formContainer.classList.toggle('active');
+                        console.log('Expense form toggled');
+                    }
+                });
+            }
+            
+            if (addCategoryBtn) {
+                addCategoryBtn.addEventListener('click', function() {
+                    const formContainer = document.getElementById('category-form-container');
+                    if (formContainer) {
+                        formContainer.classList.toggle('active');
+                        console.log('Category form toggled');
+                    }
+                });
+            }
+            
+            // Add cancel button functionality
+            const cancelIncomeBtn = document.getElementById('cancel-income-btn');
+            const cancelExpenseBtn = document.getElementById('cancel-expense-btn');
+            const cancelCategoryBtn = document.getElementById('cancel-category-btn');
+            
+            if (cancelIncomeBtn) {
+                cancelIncomeBtn.addEventListener('click', function() {
+                    const formContainer = document.getElementById('income-form-container');
+                    if (formContainer) {
+                        formContainer.classList.remove('active');
+                        console.log('Income form closed');
+                    }
+                });
+            }
+            
+            if (cancelExpenseBtn) {
+                cancelExpenseBtn.addEventListener('click', function() {
+                    const formContainer = document.getElementById('expense-form-container');
+                    if (formContainer) {
+                        formContainer.classList.remove('active');
+                        console.log('Expense form closed');
+                    }
+                });
+            }
+            
+            if (cancelCategoryBtn) {
+                cancelCategoryBtn.addEventListener('click', function() {
+                    const formContainer = document.getElementById('category-form-container');
+                    if (formContainer) {
+                        formContainer.classList.remove('active');
+                        console.log('Category form closed');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

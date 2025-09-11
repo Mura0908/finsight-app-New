@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Design Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .test-result.success {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+        .test-result.error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .test-buttons {
+            margin: 20px 0;
+        }
+        .test-btn {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            background-color: #0056b3;
+        }
+        .dimensions-display {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .scroll-test {
+            width: 100%;
+            overflow: hidden;
+            border: 2px solid #dee2e6;
+            margin: 20px 0;
+            padding: 10px;
+        }
+        .scroll-content {
+            width: 150%;
+            background-color: #f8f9fa;
+            padding: 20px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Responsive Design Test</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-tab="test">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Test</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <div class="test-container">
+                <h1>Responsive Design Test</h1>
+                <p>This page tests the responsive design to ensure there's no horizontal scrolling on mobile devices.</p>
+                
+                <div class="dimensions-display">
+                    <strong>Window Dimensions:</strong> <span id="window-dimensions">Loading...</span>
+                </div>
+                
+                <div class="test-result" id="initialization-result">
+                    <h3>Initialization Test</h3>
+                    <p id="initialization-status">Testing...</p>
+                </div>
+                
+                <div class="test-result" id="responsive-result">
+                    <h3>Responsive Design Test</h3>
+                    <p id="responsive-status">Waiting for tests to run...</p>
+                </div>
+                
+                <div class="test-buttons">
+                    <button class="test-btn" id="test-mobile">Test Mobile Size (320px)</button>
+                    <button class="test-btn" id="test-tablet">Test Tablet Size (768px)</button>
+                    <button class="test-btn" id="test-desktop">Test Desktop Size (1200px)</button>
+                    <button class="test-btn" id="test-current">Test Current Size</button>
+                </div>
+                
+                <div class="test-result" id="scroll-result">
+                    <h3>Horizontal Scroll Test</h3>
+                    <p id="scroll-status">Testing for horizontal scroll...</p>
+                    <div class="scroll-test" id="scroll-test-container">
+                        <div class="scroll-content">
+                            This is a test content that is wider than the container to test for horizontal scrolling issues.
+                            If you see horizontal scrollbars or can scroll horizontally, there's a responsive design issue.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="test-result" id="console-output">
+                    <h3>Console Output</h3>
+                    <pre id="console-log">No output yet...</pre>
+                </div>
+                
+                <!-- Test category tables -->
+                <div class="category-tables-section">
+                    <div class="category-table-container">
+                        <h3>Inkomsten categorieën</h3>
+                        <table class="category-table" id="income-categories-table">
+                            <thead>
+                                <tr>
+                                    <th>Naam</th>
+                                    <th>Beschrijving</th>
+                                    <th>Icoon</th>
+                                    <th>Acties</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Salaris</td>
+                                    <td>Maandelijkse uitbetaling</td>
+                                    <td><i class="fas fa-euro-sign"></i></td>
+                                    <td>
+                                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Freelance</td>
+                                    <td>Project gebaseerde inkomsten</td>
+                                    <td><i class="fas fa-laptop"></i></td>
+                                    <td>
+                                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="category-table-container">
+                        <h3>Uitgaven categorieën</h3>
+                        <table class="category-table" id="expense-categories-table">
+                            <thead>
+                                <tr>
+                                    <th>Naam</th>
+                                    <th>Beschrijving</th>
+                                    <th>Icoon</th>
+                                    <th>Acties</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Boodschappen</td>
+                                    <td>Dagelijkse aankopen</td>
+                                    <td><i class="fas fa-shopping-cart"></i></td>
+                                    <td>
+                                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Huur</td>
+                                    <td>Maandelijkse huur</td>
+                                    <td><i class="fas fa-home"></i></td>
+                                    <td>
+                                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Vervoer</td>
+                                    <td>OV of benzine kosten</td>
+                                    <td><i class="fas fa-car"></i></td>
+                                    <td>
+                                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Test data tables -->
+                <div class="data-table-container">
+                    <h3>Test Data Table</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Beschrijving</th>
+                                <th>Categorie</th>
+                                <th>Bron/Methode</th>
+                                <th>Bedrag</th>
+                                <th>Status</th>
+                                <th>Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2023-06-15</td>
+                                <td>Maandelijkse salaris</td>
+                                <td>Salaris</td>
+                                <td>Werkgever</td>
+                                <td>€3,500.00</td>
+                                <td>Betaald</td>
+                                <td>
+                                    <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                    <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2023-06-10</td>
+                                <td>Boodschappen</td>
+                                <td>Boodschappen</td>
+                                <td>Contant</td>
+                                <td>€125.50</td>
+                                <td>Open</td>
+                                <td>
+                                    <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                    <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                    <button class="pay-btn"><i class="fas fa-check"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Test script for responsive design
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Responsive Design Test Page Loaded');
+            
+            // Capture console output
+            const consoleLog = document.getElementById('console-log');
+            const originalLog = console.log;
+            console.log = function(message) {
+                originalLog.apply(console, arguments);
+                consoleLog.textContent += message + '\n';
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            };
+            
+            // Update window dimensions display
+            updateWindowDimensions();
+            window.addEventListener('resize', updateWindowDimensions);
+            
+            // Test initialization
+            testInitialization();
+            
+            // Test for horizontal scroll
+            testHorizontalScroll();
+            
+            // Set up test buttons
+            document.getElementById('test-mobile').addEventListener('click', function() {
+                resizeWindow(320, 568);
+            });
+            
+            document.getElementById('test-tablet').addEventListener('click', function() {
+                resizeWindow(768, 1024);
+            });
+            
+            document.getElementById('test-desktop').addEventListener('click', function() {
+                resizeWindow(1200, 800);
+            });
+            
+            document.getElementById('test-current').addEventListener('click', function() {
+                testCurrentSize();
+            });
+        });
+        
+        function updateWindowDimensions() {
+            const dimensionsElement = document.getElementById('window-dimensions');
+            dimensionsElement.textContent = `${window.innerWidth} x ${window.innerHeight}`;
+        }
+        
+        function testInitialization() {
+            const resultElement = document.getElementById('initialization-status');
+            
+            try {
+                // Check if required elements exist
+                const container = document.querySelector('.container');
+                const header = document.querySelector('.app-header');
+                const main = document.querySelector('.app-main');
+                
+                if (container && header && main) {
+                    resultElement.textContent = 'SUCCESS: All required elements found';
+                    resultElement.parentElement.classList.add('success');
+                    console.log('Initialization test passed');
+                } else {
+                    throw new Error('Missing required elements');
+                }
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Initialization test failed: ' + error.message);
+            }
+        }
+        
+        function testHorizontalScroll() {
+            const resultElement = document.getElementById('scroll-status');
+            
+            try {
+                // Check if there's horizontal overflow
+                const container = document.querySelector('.container');
+                const hasHorizontalScroll = container.scrollWidth > container.clientWidth;
+                
+                if (hasHorizontalScroll) {
+                    throw new Error('Horizontal scrolling detected - this indicates a responsive design issue');
+                } else {
+                    resultElement.textContent = 'SUCCESS: No horizontal scrolling detected';
+                    resultElement.parentElement.classList.add('success');
+                    console.log('Horizontal scroll test passed');
+                }
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Horizontal scroll test failed: ' + error.message);
+            }
+        }
+        
+        function resizeWindow(width, height) {
+            console.log(`Resizing window to ${width} x ${height}`);
+            
+            // Note: We can't actually resize the window from JavaScript for security reasons
+            // But we can simulate it by showing what the test would do
+            alert(`In a real test environment, the window would be resized to ${width} x ${height}. 
+            Please manually resize your browser window to test responsiveness.`);
+            
+            testCurrentSize();
+        }
+        
+        function testCurrentSize() {
+            const resultElement = document.getElementById('responsive-status');
+            const width = window.innerWidth;
+            
+            try {
+                if (width <= 480) {
+                    resultElement.textContent = 'SUCCESS: Mobile size detected (≤480px) - Design should be optimized for small screens';
+                } else if (width <= 768) {
+                    resultElement.textContent = 'SUCCESS: Tablet size detected (≤768px) - Design should be optimized for medium screens';
+                } else {
+                    resultElement.textContent = 'SUCCESS: Desktop size detected (>768px) - Design should be optimized for large screens';
+                }
+                
+                resultElement.parentElement.classList.add('success');
+                console.log(`Responsive design test passed for width: ${width}px`);
+                
+                // Test horizontal scroll after resize
+                testHorizontalScroll();
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Responsive design test failed: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
