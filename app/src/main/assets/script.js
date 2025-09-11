@@ -4,15 +4,44 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing app');
     
-    // Set up simplified tab navigation
-    setupSimpleTabNavigation();
+    // Load data from localStorage
+    loadFromLocalStorage();
+    
+    // Set default dates
+    const today = new Date().toISOString().split('T')[0];
+    if (document.getElementById('income-date')) {
+        document.getElementById('income-date').value = today;
+    }
+    if (document.getElementById('expense-date')) {
+        document.getElementById('expense-date').value = today;
+    }
+    if (document.getElementById('budget-form') && document.getElementById('budget-form').querySelector('#budget-period')) {
+        document.getElementById('budget-form').querySelector('#budget-period').value = 'monthly';
+    }
+    
+    // Set min date for goals and debts
+    if (document.getElementById('goal-deadline')) {
+        document.getElementById('goal-deadline').min = today;
+    }
+    if (document.getElementById('debt-start-date')) {
+        document.getElementById('debt-start-date').value = today;
+    }
+    
+    // Set up event listeners
+    setupEventListeners();
+    
+    // Set up tab navigation
+    setupTabNavigation();
+    
+    // Initialize dashboard
+    updateDashboard();
     
     console.log('App initialization completed');
 });
 
-// Set up simplified tab navigation
-function setupSimpleTabNavigation() {
-    console.log('Setting up simplified tab navigation');
+// Set up tab navigation
+function setupTabNavigation() {
+    console.log('Setting up tab navigation');
     
     // Get all tab buttons
     const tabButtons = document.querySelectorAll('.nav-btn');
@@ -29,6 +58,9 @@ function setupSimpleTabNavigation() {
             showTab(tabName);
         });
     });
+    
+    // Show dashboard by default
+    showTab('dashboard');
 }
 
 // Show a specific tab
@@ -62,17 +94,6 @@ function showTab(tabName) {
     }
     
     console.log('Tab display completed for:', tabName);
-}
-
-    // Set default dates
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('income-date').value = today;
-    document.getElementById('expense-date').value = today;
-    document.getElementById('budget-form').querySelector('#budget-period').value = 'monthly';
-    
-    // Set min date for goals and debts
-    document.getElementById('goal-deadline').min = today;
-    document.getElementById('debt-start-date').value = today;
 }
 
 // Set up event listeners
@@ -155,6 +176,34 @@ function setupEventListeners() {
     }
 }
 
+// Data arrays
+let incomes = [];
+let expenses = [];
+let budgets = [];
+let goals = [];
+let debts = [];
+let repayments = [];
+let categories = {
+    income: [
+        { id: 'salary', name: 'Salaris', description: '', icon: '' },
+        { id: 'freelance', name: 'Freelance', description: '', icon: '' },
+        { id: 'investment', name: 'Investeringen', description: '', icon: '' },
+        { id: 'gift', name: 'Geschenken', description: '', icon: '' },
+        { id: 'other', name: 'Overige', description: '', icon: '' }
+    ],
+    expense: [
+        { id: 'groceries', name: 'Boodschappen', description: '', icon: '' },
+        { id: 'rent', name: 'Huur', description: '', icon: '' },
+        { id: 'utilities', name: 'Nutsvoorzieningen', description: '', icon: '' },
+        { id: 'transport', name: 'Vervoer', description: '', icon: '' },
+        { id: 'entertainment', name: 'Entertainment', description: '', icon: '' },
+        { id: 'healthcare', name: 'Gezondheidszorg', description: '', icon: '' },
+        { id: 'education', name: 'Onderwijs', description: '', icon: '' },
+        { id: 'other', name: 'Overige', description: '', icon: '' }
+    ]
+};
+let monthClosures = [];
+
 // Handle category form submission
 function handleCategorySubmit(e) {
     e.preventDefault();
@@ -187,11 +236,9 @@ function handleCategorySubmit(e) {
     updateCategoriesTable();
     
     // Reset form and hide it
+    const categoryForm = document.getElementById('category-form');
     categoryForm.reset();
-    toggleForm(categoryFormContainer);
-}
-
-    toggleForm(categoryFormContainer);
+    toggleForm(document.getElementById('category-form-container'));
 }
 
 // Update category selectors in forms
@@ -243,44 +290,48 @@ function updateCategorySelectors() {
 function updateCategoriesTable() {
     // Update income categories table
     const incomeTbody = document.getElementById('income-categories-table-body');
-    if (categories.income.length === 0) {
-        incomeTbody.innerHTML = '<tr><td colspan="4" class="no-data">Geen inkomsten categorieën gevonden</td></tr>';
-    } else {
-        incomeTbody.innerHTML = '';
-        categories.income.forEach(category => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${category.name}</td>
-                <td>${category.description || '-'}</td>
-                <td>${category.icon ? `<i class="${category.icon}"></i>` : '-'}</td>
-                <td>
-                    <button class="edit-btn" onclick="editCategory('${category.id}', 'income')"><i class="fas fa-edit"></i></button>
-                    <button class="delete-btn" onclick="deleteCategory('${category.id}', 'income')"><i class="fas fa-trash"></i></button>
-                </td>
-            `;
-            incomeTbody.appendChild(row);
-        });
+    if (incomeTbody) {
+        if (categories.income.length === 0) {
+            incomeTbody.innerHTML = '<tr><td colspan="4" class="no-data">Geen inkomsten categorieën gevonden</td></tr>';
+        } else {
+            incomeTbody.innerHTML = '';
+            categories.income.forEach(category => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category.name}</td>
+                    <td>${category.description || '-'}</td>
+                    <td>${category.icon ? `<i class="${category.icon}"></i>` : '-'}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editCategory('${category.id}', 'income')"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteCategory('${category.id}', 'income')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                incomeTbody.appendChild(row);
+            });
+        }
     }
     
     // Update expense categories table
     const expenseTbody = document.getElementById('expense-categories-table-body');
-    if (categories.expense.length === 0) {
-        expenseTbody.innerHTML = '<tr><td colspan="4" class="no-data">Geen uitgaven categorieën gevonden</td></tr>';
-    } else {
-        expenseTbody.innerHTML = '';
-        categories.expense.forEach(category => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${category.name}</td>
-                <td>${category.description || '-'}</td>
-                <td>${category.icon ? `<i class="${category.icon}"></i>` : '-'}</td>
-                <td>
-                    <button class="edit-btn" onclick="editCategory('${category.id}', 'expense')"><i class="fas fa-edit"></i></button>
-                    <button class="delete-btn" onclick="deleteCategory('${category.id}', 'expense')"><i class="fas fa-trash"></i></button>
-                </td>
-            `;
-            expenseTbody.appendChild(row);
-        });
+    if (expenseTbody) {
+        if (categories.expense.length === 0) {
+            expenseTbody.innerHTML = '<tr><td colspan="4" class="no-data">Geen uitgaven categorieën gevonden</td></tr>';
+        } else {
+            expenseTbody.innerHTML = '';
+            categories.expense.forEach(category => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category.name}</td>
+                    <td>${category.description || '-'}</td>
+                    <td>${category.icon ? `<i class="${category.icon}"></i>` : '-'}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editCategory('${category.id}', 'expense')"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" onclick="deleteCategory('${category.id}', 'expense')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                expenseTbody.appendChild(row);
+            });
+        }
     }
 }
 
@@ -290,7 +341,7 @@ function editCategory(id, type) {
     if (!category) return;
     
     // Show the category form
-    toggleForm(categoryFormContainer);
+    toggleForm(document.getElementById('category-form-container'));
     
     // Fill the form with category data
     document.getElementById('category-name').value = category.name;
@@ -299,6 +350,7 @@ function editCategory(id, type) {
     document.getElementById('category-icon').value = category.icon || '';
     
     // Store the original ID and type for updating
+    const categoryForm = document.getElementById('category-form');
     categoryForm.dataset.editingId = id;
     categoryForm.dataset.editingType = type;
     
@@ -346,7 +398,7 @@ function editCategory(id, type) {
         categoryForm.reset();
         delete categoryForm.dataset.editingId;
         delete categoryForm.dataset.editingType;
-        toggleForm(categoryFormContainer);
+        toggleForm(document.getElementById('category-form-container'));
         
         // Restore original submit handler
         categoryForm.onsubmit = handleCategorySubmit;
@@ -413,173 +465,6 @@ function deleteCategory(id, type) {
     }
 }
 
-// Switch between tabs
-function switchTab(tabName) {
-    console.log('Switching to tab:', tabName);
-    
-    // Get fresh references to tab buttons and contents
-    const tabButtons = document.querySelectorAll('.nav-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    // Update active tab button
-    tabButtons.forEach(button => {
-        if (button.dataset.tab === tabName) {
-            button.classList.add('active');
-            console.log('Activated tab button:', tabName);
-        } else {
-            button.classList.remove('active');
-        }
-    });
-    
-    // Show active tab content
-    tabContents.forEach(content => {
-        if (content.id === tabName) {
-            content.classList.add('active');
-            console.log('Activated tab content:', tabName);
-        } else {
-            content.classList.remove('active');
-        }
-    });
-    
-    // Close all forms when switching tabs
-    closeAllForms();
-    
-    // Special handling for specific tabs
-    switch(tabName) {
-        case 'repayments':
-            handleRepaymentsTab();
-            break;
-        case 'categories':
-            updateCategoriesTable();
-            break;
-        case 'dashboard':
-            updateDashboard();
-            break;
-        case 'income':
-            updateIncomeTable();
-            break;
-        case 'expenses':
-            updateExpenseTable();
-            break;
-        case 'budgets':
-            updateBudgetsList();
-            break;
-        case 'goals':
-            updateGoalsList();
-            break;
-        case 'debts':
-            updateDebtsList();
-            break;
-        case 'reports':
-            updateReports();
-            break;
-    }
-    
-    console.log('Tab switching completed for:', tabName);
-}
-
-
-            break;
-    }
-}
-
-// Handle repayments tab (moved from switchTab)
-function handleRepaymentsTab() {
-    // Check if password is already entered
-    const storedPassword = localStorage.getItem('finsight_repayment_password');
-    const accessGranted = sessionStorage.getItem('repayment_access_granted');
-    
-    if (storedPassword && accessGranted === 'true') {
-        repaymentPasswordSection.style.display = 'none';
-        repaymentFormContainer.classList.add('active');
-        repaymentsList.classList.add('active');
-        updateRepaymentsList();
-    } else {
-        repaymentPasswordSection.style.display = 'block';
-        repaymentFormContainer.classList.remove('active');
-        repaymentsList.classList.remove('active');
-        // Clear password fields
-        repaymentPasswordInput.value = '';
-        repaymentPasswordSetupInput.value = '';
-    }
-}
-
-// Update debts list
-function updateDebtsList() {
-    const container = document.getElementById('debts-list');
-    
-    if (debts.length === 0) {
-        container.innerHTML = '<p class="no-data">Geen schulden geregistreerd</p>';
-        return;
-    }
-    
-    container.innerHTML = '';
-    debts.forEach(debt => {
-        const percentage = Math.min(100, (debt.paid / debt.amount) * 100);
-        const remaining = debt.amount - debt.paid;
-        
-        const debtCard = document.createElement('div');
-        debtCard.className = 'debt-card';
-        debtCard.innerHTML = `
-            <div class="debt-header">
-                <h3>${debt.name}</h3>
-                <span class="debt-status">${percentage >= 100 ? 'Afgelost' : 'Openstaand'}</span>
-            </div>
-            <div class="debt-amount">€${debt.paid.toFixed(2)} / €${debt.amount.toFixed(2)}</div>
-            <div class="debt-details">
-                <div>Crediteur: ${debt.creditor}</div>
-                <div>Rente: ${debt.interest}%</div>
-            </div>
-            <div class="debt-details">
-                <div>Maandelijkse afbetaling: €${debt.monthlyPayment.toFixed(2)}</div>
-                <div>Resterend: €${remaining.toFixed(2)}</div>
-            </div>
-            <div class="debt-actions">
-                <button class="pay-btn" onclick="makePayment(${debt.id})"><i class="fas fa-euro-sign"></i> Betalen</button>
-                <button class="edit-btn" onclick="editDebt(${debt.id})"><i class="fas fa-edit"></i> Bewerken</button>
-                <button class="delete-btn" onclick="deleteDebt(${debt.id})"><i class="fas fa-trash"></i> Verwijderen</button>
-            </div>
-        `;
-        container.appendChild(debtCard);
-    });
-}
-
-// Update repayments list
-function updateRepaymentsList() {
-    const container = document.getElementById('repayments-list');
-    
-    if (repayments.length === 0) {
-        container.innerHTML = '<p class="no-data">Geen terugbetalingen geregistreerd</p>';
-        return;
-    }
-    
-    container.innerHTML = '';
-    repayments.forEach(repayment => {
-        const repaymentCard = document.createElement('div');
-        repaymentCard.className = 'repayment-card';
-        repaymentCard.innerHTML = `
-            <div class="repayment-header">
-                <h3>${repayment.person}</h3>
-                <span class="repayment-status status-${repayment.type}">${repayment.type === 'owed-to-me' ? 'Schuld aan mij' : 'Schuld van mij'}</span>
-            </div>
-            <div class="repayment-amount ${repayment.type === 'owed-to-me' ? 'owed-to-me-amount' : 'owed-by-me-amount'}">
-                €${repayment.amount.toFixed(2)}
-            </div>
-            <div class="repayment-details">
-                <div>Datum: ${formatDate(repayment.date)}</div>
-                <div>Type: ${repayment.type === 'owed-to-me' ? 'Te ontvangen' : 'Te betalen'}</div>
-            </div>
-            ${repayment.description ? `<div class="repayment-description">${repayment.description}</div>` : ''}
-            <div class="repayment-actions">
-                ${repayment.type === 'owed-by-me' ? `<button class="pay-btn" onclick="markAsPaid(${repayment.id})"><i class="fas fa-check"></i> Betaald</button>` : ''}
-                <button class="edit-btn" onclick="editRepayment(${repayment.id})"><i class="fas fa-edit"></i> Bewerken</button>
-                <button class="delete-btn" onclick="deleteRepayment(${repayment.id})"><i class="fas fa-trash"></i> Verwijderen</button>
-            </div>
-        `;
-        container.appendChild(repaymentCard);
-    });
-}
-
 // Handle income form submission
 function handleIncomeSubmit(e) {
     e.preventDefault();
@@ -600,9 +485,10 @@ function handleIncomeSubmit(e) {
     updateDashboard();
     
     // Reset form and hide it
+    const incomeForm = document.getElementById('income-form');
     incomeForm.reset();
     document.getElementById('income-date').value = new Date().toISOString().split('T')[0];
-    toggleForm(incomeFormContainer);
+    toggleForm(document.getElementById('income-form-container'));
 }
 
 // Handle expense form submission
@@ -629,9 +515,10 @@ function handleExpenseSubmit(e) {
     updateDashboard();
     
     // Reset form and hide it
+    const expenseForm = document.getElementById('expense-form');
     expenseForm.reset();
     document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
-    toggleForm(expenseFormContainer);
+    toggleForm(document.getElementById('expense-form-container'));
 }
 
 // Handle budget form submission
@@ -657,8 +544,9 @@ function handleBudgetSubmit(e) {
     updateDashboard();
     
     // Reset form and hide it
+    const budgetForm = document.getElementById('budget-form');
     budgetForm.reset();
-    toggleForm(budgetFormContainer);
+    toggleForm(document.getElementById('budget-form-container'));
 }
 
 // Handle goal form submission
@@ -681,8 +569,9 @@ function handleGoalSubmit(e) {
     updateDashboard();
     
     // Reset form and hide it
+    const goalForm = document.getElementById('goal-form');
     goalForm.reset();
-    toggleForm(goalFormContainer);
+    toggleForm(document.getElementById('goal-form-container'));
 }
 
 // Handle debt form submission
@@ -707,9 +596,10 @@ function handleDebtSubmit(e) {
     updateDashboard();
     
     // Reset form and hide it
+    const debtForm = document.getElementById('debt-form');
     debtForm.reset();
     document.getElementById('debt-start-date').value = new Date().toISOString().split('T')[0];
-    toggleForm(debtFormContainer);
+    toggleForm(document.getElementById('debt-form-container'));
 }
 
 // Handle repayment form submission
@@ -731,13 +621,17 @@ function handleRepaymentSubmit(e) {
     updateDashboard();
     
     // Reset form and hide it
+    const repaymentForm = document.getElementById('repayment-form');
     repaymentForm.reset();
     document.getElementById('repayment-date').value = new Date().toISOString().split('T')[0];
-    toggleForm(repaymentFormContainer);
+    toggleForm(document.getElementById('repayment-form-container'));
 }
 
 // Handle repayment password protection
 function handleRepaymentPassword() {
+    const repaymentPasswordInput = document.getElementById('repayment-password');
+    const repaymentPasswordSetupInput = document.getElementById('repayment-password-setup');
+    
     const password = repaymentPasswordInput.value;
     const setupPassword = repaymentPasswordSetupInput.value;
     
@@ -774,30 +668,28 @@ function handleRepaymentPassword() {
 
 // Show repayment section after successful password entry
 function showRepaymentSection() {
-    repaymentPasswordSection.style.display = 'none';
-    repaymentFormContainer.classList.add('active');
-    repaymentsList.classList.add('active');
+    const repaymentPasswordSection = document.getElementById('repayment-password-section');
+    const repaymentFormContainer = document.getElementById('repayment-form-container');
+    const repaymentsList = document.getElementById('repayments-list');
+    
+    if (repaymentPasswordSection) repaymentPasswordSection.style.display = 'none';
+    if (repaymentFormContainer) repaymentFormContainer.classList.add('active');
+    if (repaymentsList) repaymentsList.classList.add('active');
     updateRepaymentsList();
 }
 
 // Toggle form visibility
 function toggleForm(formContainer) {
-    formContainer.classList.toggle('active');
-}
-
-// Close all forms
-function closeAllForms() {
-    incomeFormContainer.classList.remove('active');
-    expenseFormContainer.classList.remove('active');
-    budgetFormContainer.classList.remove('active');
-    goalFormContainer.classList.remove('active');
-    debtFormContainer.classList.remove('active');
-    repaymentFormContainer.classList.remove('active');
+    if (formContainer) {
+        formContainer.classList.toggle('active');
+    }
 }
 
 // Update income table with search and filter functionality
 function updateIncomeTable() {
     const tbody = document.getElementById('income-table-body');
+    
+    if (!tbody) return;
     
     if (incomes.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="no-data">Geen inkomsten gevonden</td></tr>';
@@ -855,6 +747,8 @@ function updateIncomeTable() {
 // Update expense table with search and filter functionality
 function updateExpenseTable() {
     const tbody = document.getElementById('expense-table-body');
+    
+    if (!tbody) return;
     
     if (expenses.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="no-data">Geen uitgaven gevonden</td></tr>';
@@ -921,13 +815,13 @@ function updateExpenseTable() {
 function updateBudgetsList() {
     const container = document.getElementById('budgets-list');
     
+    if (!container) return;
+    
     if (budgets.length === 0) {
         container.innerHTML = '<p class="no-data">Geen budgetten ingesteld</p>';
         return;
     }
     
-}
-
     container.innerHTML = '';
     budgets.forEach(budget => {
         const percentage = Math.min(100, (budget.used / budget.amount) * 100);
@@ -961,683 +855,7 @@ function updateBudgetsList() {
 function updateGoalsList() {
     const container = document.getElementById('goals-list');
     
-    if (goals.length === 0) {
-        container.innerHTML = '<p class="no-data">Geen doelen ingesteld</p>';
-        return;
-    }
-    
-    container.innerHTML = '';
-    goals.forEach(goal => {
-        const percentage = Math.min(100, (goal.saved / goal.target) * 100);
-        const progressBarClass = percentage < 70 ? 'safe' : percentage < 90 ? 'warning' : 'danger';
-        const remaining = goal.target - goal.saved;
-        
-        const goalCard = document.createElement('div');
-        goalCard.className = 'goal-card';
-        goalCard.innerHTML = `
-            <div class="goal-header">
-                <h3>${goal.name}</h3>
-                <span class="goal-status">${percentage >= 100 ? 'Bereikt' : 'Openstaand'}</span>
-            </div>
-            <div class="goal-amount">€${goal.saved.toFixed(2)} / €${goal.target.toFixed(2)}</div>
-            <div class="goal-progress">
-                <div class="goal-progress-bar ${progressBarClass}" style="width: ${percentage}%"></div>
-            </div>
-            <div class="goal-details">
-                <span>${percentage.toFixed(1)}% bereikt</span>
-                <span>${goal.monthlyAmount ? `€${goal.monthlyAmount.toFixed(2)} per maand` : ''}</span>
-            </div>
-            <div class="goal-description">${goal.description}</div>
-            <div class="goal-actions">
-                <button class="edit-btn" onclick="editGoal(${goal.id})"><i class="fas fa-edit"></i> Bewerken</button>
-                <button class="delete-btn" onclick="deleteGoal(${goal.id})"><i class="fas fa-trash"></i> Verwijderen</button>
-            </div>
-        `;
-        container.appendChild(goalCard);
-    });
-}
-
-// Update dashboard with total incomes, expenses, savings, debts, and net worth
-function updateDashboard() {
-    const totalIncome = incomes.reduce((total, income) => total + income.amount, 0);
-    const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
-    const totalBudgets = budgets.reduce((total, budget) => total + budget.used, 0);
-    const totalGoals = goals.reduce((total, goal) => total + goal.saved, 0);
-    const totalDebts = debts.reduce((total, debt) => total + debt.amount, 0);
-    const totalRepayments = repayments.reduce((total, repayment) => total + repayment.amount, 0);
-    const netWorth = totalIncome - totalExpenses - totalDebts + totalRepayments;
-    
-    document.getElementById('total-income').textContent = `€${totalIncome.toFixed(2)}`;
-    document.getElementById('total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
-    document.getElementById('total-budgets').textContent = `€${totalBudgets.toFixed(2)}`;
-    document.getElementById('total-goals').textContent = `€${totalGoals.toFixed(2)}`;
-    document.getElementById('total-debts').textContent = `€${totalDebts.toFixed(2)}`;
-    document.getElementById('total-repayments').textContent = `€${totalRepayments.toFixed(2)}`;
-    document.getElementById('net-worth').textContent = `€${netWorth.toFixed(2)}`;
-}
-
-// Update reports with income, expense, budget, goal, debt, and repayment data
-function updateReports() {
-    const period = document.getElementById('report-period').value;
-    const startDate = new Date(document.getElementById('report-start-date').value);
-    const endDate = new Date(document.getElementById('report-end-date').value);
-    
-    // Filter data based on period and date range
-    const filteredIncomes = incomes.filter(income => {
-        const incomeDate = new Date(income.date);
-        return (period === 'custom' && incomeDate >= startDate && incomeDate <= endDate) ||
-               (period === 'yearly' && incomeDate.getFullYear() === startDate.getFullYear()) ||
-               (period === 'monthly' && incomeDate.getFullYear() === startDate.getFullYear() && incomeDate.getMonth() === startDate.getMonth()) ||
-               (period === 'weekly' && incomeDate.getFullYear() === startDate.getFullYear() && incomeDate.getMonth() === startDate.getMonth() && incomeDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && incomeDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
-    });
-    
-    const filteredExpenses = expenses.filter(expense => {
-        const expenseDate = new Date(expense.date);
-        return (period === 'custom' && expenseDate >= startDate && expenseDate <= endDate) ||
-               (period === 'yearly' && expenseDate.getFullYear() === startDate.getFullYear()) ||
-               (period === 'monthly' && expenseDate.getFullYear() === startDate.getFullYear() && expenseDate.getMonth() === startDate.getMonth()) ||
-               (period === 'weekly' && expenseDate.getFullYear() === startDate.getFullYear() && expenseDate.getMonth() === startDate.getMonth() && expenseDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && expenseDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
-    });
-    
-    const filteredBudgets = budgets.filter(budget => {
-        const budgetDate = new Date();
-        return (period === 'custom' && budgetDate >= startDate && budgetDate <= endDate) ||
-               (period === 'yearly' && budgetDate.getFullYear() === startDate.getFullYear()) ||
-               (period === 'monthly' && budgetDate.getFullYear() === startDate.getFullYear() && budgetDate.getMonth() === startDate.getMonth()) ||
-               (period === 'weekly' && budgetDate.getFullYear() === startDate.getFullYear() && budgetDate.getMonth() === startDate.getMonth() && budgetDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && budgetDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
-    });
-    
-    const filteredGoals = goals.filter(goal => {
-        const goalDate = new Date();
-        return (period === 'custom' && goalDate >= startDate && goalDate <= endDate) ||
-               (period === 'yearly' && goalDate.getFullYear() === startDate.getFullYear()) ||
-               (period === 'monthly' && goalDate.getFullYear() === startDate.getFullYear() && goalDate.getMonth() === startDate.getMonth()) ||
-               (period === 'weekly' && goalDate.getFullYear() === startDate.getFullYear() && goalDate.getMonth() === startDate.getMonth() && goalDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && goalDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
-    });
-    
-    const filteredDebts = debts.filter(debt => {
-        const debtDate = new Date(debt.startDate);
-        return (period === 'custom' && debtDate >= startDate && debtDate <= endDate) ||
-               (period === 'yearly' && debtDate.getFullYear() === startDate.getFullYear()) ||
-               (period === 'monthly' && debtDate.getFullYear() === startDate.getFullYear() && debtDate.getMonth() === startDate.getMonth()) ||
-               (period === 'weekly' && debtDate.getFullYear() === startDate.getFullYear() && debtDate.getMonth() === startDate.getMonth() && debtDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && debtDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
-    });
-    
-    const filteredRepayments = repayments.filter(repayment => {
-        const repaymentDate = new Date(repayment.date);
-        return (period === 'custom' && repaymentDate >= startDate && repaymentDate <= endDate) ||
-               (period === 'yearly' && repaymentDate.getFullYear() === startDate.getFullYear()) ||
-               (period === 'monthly' && repaymentDate.getFullYear() === startDate.getFullYear() && repaymentDate.getMonth() === startDate.getMonth()) ||
-               (period === 'weekly' && repaymentDate.getFullYear() === startDate.getFullYear() && repaymentDate.getMonth() === startDate.getMonth() && repaymentDate.getDate() >= startDate.getDate() - (startDate.getDay() || 7) + 1 && repaymentDate.getDate() <= startDate.getDate() - (startDate.getDay() || 7) + 7);
-    });
-    
-    // Calculate totals for the filtered data
-    const totalIncome = filteredIncomes.reduce((total, income) => total + income.amount, 0);
-    const totalExpenses = filteredExpenses.reduce((total, expense) => total + expense.amount, 0);
-    const totalBudgets = filteredBudgets.reduce((total, budget) => total + budget.used, 0);
-    const totalGoals = filteredGoals.reduce((total, goal) => total + goal.saved, 0);
-    const totalDebts = filteredDebts.reduce((total, debt) => total + debt.amount, 0);
-    const totalRepayments = filteredRepayments.reduce((total, repayment) => total + repayment.amount, 0);
-    const netWorth = totalIncome - totalExpenses - totalDebts + totalRepayments;
-    
-    // Update the report section with the calculated totals
-    document.getElementById('report-total-income').textContent = `€${totalIncome.toFixed(2)}`;
-    document.getElementById('report-total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
-    document.getElementById('report-total-budgets').textContent = `€${totalBudgets.toFixed(2)}`;
-    document.getElementById('report-total-goals').textContent = `€${totalGoals.toFixed(2)}`;
-    document.getElementById('report-total-debts').textContent = `€${totalDebts.toFixed(2)}`;
-    document.getElementById('report-total-repayments').textContent = `€${totalRepayments.toFixed(2)}`;
-    document.getElementById('report-net-worth').textContent = `€${netWorth.toFixed(2)}`;
-}
-
-// Edit income
-function editIncome(id) {
-    const income = incomes.find(income => income.id === id);
-    if (!income) return;
-    
-    // Show the income form
-    toggleForm(incomeFormContainer);
-    
-    // Fill the form with income data
-    document.getElementById('income-description').value = income.description;
-    document.getElementById('income-amount').value = income.amount;
-    document.getElementById('income-category').value = income.category;
-    document.getElementById('income-date').value = income.date;
-    document.getElementById('income-frequency').value = income.frequency;
-    document.getElementById('income-source').value = income.source || '';
-    
-    // Store the original ID for updating
-    incomeForm.dataset.editingId = id;
-    
-    // Change form submit handler to update instead of add
-    incomeForm.onsubmit = function(e) {
-        e.preventDefault();
-        
-        // Get the editing ID
-        const editingId = incomeForm.dataset.editingId;
-        
-        // Find the income to update
-        const incomeToUpdate = incomes.find(income => income.id === editingId);
-        if (!incomeToUpdate) return;
-        
-        // Get updated values
-        const newDescription = document.getElementById('income-description').value;
-        const newAmount = parseFloat(document.getElementById('income-amount').value);
-        const newCategory = document.getElementById('income-category').value;
-        const newDate = document.getElementById('income-date').value;
-        const newFrequency = document.getElementById('income-frequency').value;
-        const newSource = document.getElementById('income-source').value;
-        
-        // Update income data
-        incomeToUpdate.description = newDescription;
-        incomeToUpdate.amount = newAmount;
-        incomeToUpdate.category = newCategory;
-        incomeToUpdate.date = newDate;
-        incomeToUpdate.frequency = newFrequency;
-        incomeToUpdate.source = newSource;
-        
-        saveToLocalStorage();
-        updateIncomeTable();
-        updateDashboard();
-        
-        // Reset form and hide it
-        incomeForm.reset();
-        document.getElementById('income-date').value = new Date().toISOString().split('T')[0];
-        delete incomeForm.dataset.editingId;
-        toggleForm(incomeFormContainer);
-        
-        // Restore original submit handler
-        incomeForm.onsubmit = handleIncomeSubmit;
-    };
-}
-
-// Edit expense
-function editExpense(id) {
-    const expense = expenses.find(expense => expense.id === id);
-    if (!expense) return;
-    
-    // Show the expense form
-    toggleForm(expenseFormContainer);
-    
-    // Fill the form with expense data
-    document.getElementById('expense-description').value = expense.description;
-    document.getElementById('expense-amount').value = expense.amount;
-    document.getElementById('expense-category').value = expense.category;
-    document.getElementById('expense-date').value = expense.date;
-    document.getElementById('expense-payment-method').value = expense.paymentMethod;
-    
-    // Store the original ID for updating
-    expenseForm.dataset.editingId = id;
-    
-    // Change form submit handler to update instead of add
-    expenseForm.onsubmit = function(e) {
-        e.preventDefault();
-        
-        // Get the editing ID
-        const editingId = expenseForm.dataset.editingId;
-        
-        // Find the expense to update
-        const expenseToUpdate = expenses.find(expense => expense.id === editingId);
-        if (!expenseToUpdate) return;
-        
-        // Get updated values
-        const newDescription = document.getElementById('expense-description').value;
-        const newAmount = parseFloat(document.getElementById('expense-amount').value);
-        const newCategory = document.getElementById('expense-category').value;
-        const newDate = document.getElementById('expense-date').value;
-        const newPaymentMethod = document.getElementById('expense-payment-method').value;
-        
-        // Update expense data
-        expenseToUpdate.description = newDescription;
-        expenseToUpdate.amount = newAmount;
-        expenseToUpdate.category = newCategory;
-        expenseToUpdate.date = newDate;
-        expenseToUpdate.paymentMethod = newPaymentMethod;
-        
-        saveToLocalStorage();
-        updateExpenseTable();
-        updateDashboard();
-        
-        // Reset form and hide it
-        expenseForm.reset();
-        document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
-        delete expenseForm.dataset.editingId;
-        toggleForm(expenseFormContainer);
-        
-        // Restore original submit handler
-        expenseForm.onsubmit = handleExpenseSubmit;
-    };
-}
-
-// Edit budget
-function editBudget(id) {
-    const budget = budgets.find(budget => budget.id === id);
-    if (!budget) return;
-    
-    // Show the budget form
-    toggleForm(budgetFormContainer);
-    
-    // Fill the form with budget data
-    document.getElementById('budget-name').value = budget.name;
-    document.getElementById('budget-amount').value = budget.amount;
-    document.getElementById('budget-category').value = budget.category;
-    document.getElementById('budget-period').value = budget.period;
-    
-    // Store the original ID for updating
-    budgetForm.dataset.editingId = id;
-    
-    // Change form submit handler to update instead of add
-    budgetForm.onsubmit = function(e) {
-        e.preventDefault();
-        
-        // Get the editing ID
-        const editingId = budgetForm.dataset.editingId;
-        
-        // Find the budget to update
-        const budgetToUpdate = budgets.find(budget => budget.id === editingId);
-        if (!budgetToUpdate) return;
-        
-        // Get updated values
-        const newName = document.getElementById('budget-name').value;
-        const newAmount = parseFloat(document.getElementById('budget-amount').value);
-        const newCategory = document.getElementById('budget-category').value;
-        const newPeriod = document.getElementById('budget-period').value;
-        
-        // Update budget data
-        budgetToUpdate.name = newName;
-        budgetToUpdate.amount = newAmount;
-        budgetToUpdate.category = newCategory;
-        budgetToUpdate.period = newPeriod;
-        
-        // Recalculate used amount based on existing expenses in this category
-        const categoryExpenses = expenses.filter(expense => expense.category === budgetToUpdate.category);
-        budgetToUpdate.used = categoryExpenses.reduce((total, expense) => total + expense.amount, 0);
-        
-        saveToLocalStorage();
-        updateBudgetsList();
-        updateDashboard();
-        
-        // Reset form and hide it
-        budgetForm.reset();
-        delete budgetForm.dataset.editingId;
-        toggleForm(budgetFormContainer);
-        
-        // Restore original submit handler
-        budgetForm.onsubmit = handleBudgetSubmit;
-    };
-}
-
-// Edit goal
-function editGoal(id) {
-    const goal = goals.find(goal => goal.id === id);
-    if (!goal) return;
-    
-    // Show the goal form
-    toggleForm(goalFormContainer);
-    
-    // Fill the form with goal data
-    document.getElementById('goal-name').value = goal.name;
-    document.getElementById('goal-target').value = goal.target;
-    document.getElementById('goal-deadline').value = goal.deadline;
-    document.getElementById('goal-monthly-amount').value = goal.monthlyAmount;
-    document.getElementById('goal-description').value = goal.description;
-    
-    // Store the original ID for updating
-    goalForm.dataset.editingId = id;
-    
-    // Change form submit handler to update instead of add
-    goalForm.onsubmit = function(e) {
-        e.preventDefault();
-        
-        // Get the editing ID
-        const editingId = goalForm.dataset.editingId;
-        
-        // Find the goal to update
-        const goalToUpdate = goals.find(goal => goal.id === editingId);
-        if (!goalToUpdate) return;
-        
-        // Get updated values
-        const newName = document.getElementById('goal-name').value;
-        const newTarget = parseFloat(document.getElementById('goal-target').value);
-        const newDeadline = document.getElementById('goal-deadline').value;
-        const newMonthlyAmount = parseFloat(document.getElementById('goal-monthly-amount').value) || 0;
-        const newDescription = document.getElementById('goal-description').value;
-        
-        // Update goal data
-        goalToUpdate.name = newName;
-        goalToUpdate.target = newTarget;
-        goalToUpdate.deadline = newDeadline;
-        goalToUpdate.monthlyAmount = newMonthlyAmount;
-        goalToUpdate.description = newDescription;
-        
-        saveToLocalStorage();
-        updateGoalsList();
-        updateDashboard();
-        
-        // Reset form and hide it
-        goalForm.reset();
-        delete goalForm.dataset.editingId;
-        toggleForm(goalFormContainer);
-        
-        // Restore original submit handler
-        goalForm.onsubmit = handleGoalSubmit;
-    };
-}
-
-// Edit debt
-function editDebt(id) {
-    const debt = debts.find(debt => debt.id === id);
-    if (!debt) return;
-    
-    // Show the debt form
-    toggleForm(debtFormContainer);
-    
-    // Fill the form with debt data
-    document.getElementById('debt-name').value = debt.name;
-    document.getElementById('debt-amount').value = debt.amount;
-    document.getElementById('debt-creditor').value = debt.creditor;
-    document.getElementById('debt-interest').value = debt.interest;
-    document.getElementById('debt-start-date').value = debt.startDate;
-    document.getElementById('debt-end-date').value = debt.endDate;
-    document.getElementById('debt-monthly-payment').value = debt.monthlyPayment;
-    
-    // Store the original ID for updating
-    debtForm.dataset.editingId = id;
-    
-    // Change form submit handler to update instead of add
-    debtForm.onsubmit = function(e) {
-        e.preventDefault();
-        
-        // Get the editing ID
-        const editingId = debtForm.dataset.editingId;
-        
-        // Find the debt to update
-        const debtToUpdate = debts.find(debt => debt.id === editingId);
-        if (!debtToUpdate) return;
-        
-        // Get updated values
-        const newName = document.getElementById('debt-name').value;
-        const newAmount = parseFloat(document.getElementById('debt-amount').value);
-        const newCreditor = document.getElementById('debt-creditor').value;
-        const newInterest = parseFloat(document.getElementById('debt-interest').value) || 0;
-        const newStartDate = document.getElementById('debt-start-date').value;
-        const newEndDate = document.getElementById('debt-end-date').value;
-        const newMonthlyPayment = parseFloat(document.getElementById('debt-monthly-payment').value);
-        
-        // Update debt data
-        debtToUpdate.name = newName;
-        debtToUpdate.amount = newAmount;
-        debtToUpdate.creditor = newCreditor;
-        debtToUpdate.interest = newInterest;
-        debtToUpdate.startDate = newStartDate;
-        debtToUpdate.endDate = newEndDate;
-        debtToUpdate.monthlyPayment = newMonthlyPayment;
-        
-        saveToLocalStorage();
-        updateDebtsList();
-        updateDashboard();
-        
-        // Reset form and hide it
-        debtForm.reset();
-        document.getElementById('debt-start-date').value = new Date().toISOString().split('T')[0];
-        delete debtForm.dataset.editingId;
-        toggleForm(debtFormContainer);
-        
-        // Restore original submit handler
-        debtForm.onsubmit = handleDebtSubmit;
-    };
-}
-
-// Edit repayment
-function editRepayment(id) {
-    const repayment = repayments.find(repayment => repayment.id === id);
-    if (!repayment) return;
-    
-    // Show the repayment form
-    toggleForm(repaymentFormContainer);
-    
-    // Fill the form with repayment data
-    document.getElementById('repayment-person').value = repayment.person;
-    document.getElementById('repayment-amount').value = repayment.amount;
-    document.getElementById('repayment-date').value = repayment.date;
-    document.getElementById('repayment-type').value = repayment.type;
-    document.getElementById('repayment-description').value = repayment.description;
-    
-    // Store the original ID for updating
-    repaymentForm.dataset.editingId = id;
-    
-    // Change form submit handler to update instead of add
-    repaymentForm.onsubmit = function(e) {
-        e.preventDefault();
-        
-        // Get the editing ID
-        const editingId = repaymentForm.dataset.editingId;
-        
-        // Find the repayment to update
-        const repaymentToUpdate = repayments.find(repayment => repayment.id === editingId);
-        if (!repaymentToUpdate) return;
-        
-        // Get updated values
-        const newPerson = document.getElementById('repayment-person').value;
-        const newAmount = parseFloat(document.getElementById('repayment-amount').value);
-        const newDate = document.getElementById('repayment-date').value;
-        const newType = document.getElementById('repayment-type').value;
-        const newDescription = document.getElementById('repayment-description').value;
-        
-        // Update repayment data
-        repaymentToUpdate.person = newPerson;
-        repaymentToUpdate.amount = newAmount;
-        repaymentToUpdate.date = newDate;
-        repaymentToUpdate.type = newType;
-        repaymentToUpdate.description = newDescription;
-        
-        saveToLocalStorage();
-        updateRepaymentsList();
-        updateDashboard();
-        
-        // Reset form and hide it
-        repaymentForm.reset();
-        document.getElementById('repayment-date').value = new Date().toISOString().split('T')[0];
-        delete repaymentForm.dataset.editingId;
-        toggleForm(repaymentFormContainer);
-        
-        // Restore original submit handler
-        repaymentForm.onsubmit = handleRepaymentSubmit;
-    };
-}
-
-// Delete income
-function deleteIncome(id) {
-    if (confirm('Weet je zeker dat je deze inkomsten wilt verwijderen?')) {
-        incomes = incomes.filter(income => income.id !== id);
-        saveToLocalStorage();
-        updateIncomeTable();
-        updateDashboard();
-    }
-}
-
-// Delete expense
-function deleteExpense(id) {
-    if (confirm('Weet je zeker dat je deze uitgaven wilt verwijderen?')) {
-        expenses = expenses.filter(expense => expense.id !== id);
-        saveToLocalStorage();
-        updateExpenseTable();
-        updateDashboard();
-    }
-}
-
-// Delete budget
-function deleteBudget(id) {
-    if (confirm('Weet je zeker dat je dit budget wilt verwijderen?')) {
-        budgets = budgets.filter(budget => budget.id !== id);
-        saveToLocalStorage();
-        updateBudgetsList();
-        updateDashboard();
-    }
-}
-
-// Delete goal
-function deleteGoal(id) {
-    if (confirm('Weet je zeker dat je dit doel wilt verwijderen?')) {
-        goals = goals.filter(goal => goal.id !== id);
-        saveToLocalStorage();
-        updateGoalsList();
-        updateDashboard();
-    }
-}
-
-// Delete debt
-function deleteDebt(id) {
-    if (confirm('Weet je zeker dat je deze schuld wilt verwijderen?')) {
-        debts = debts.filter(debt => debt.id !== id);
-        saveToLocalStorage();
-        updateDebtsList();
-        updateDashboard();
-    }
-}
-
-// Delete repayment
-function deleteRepayment(id) {
-    if (confirm('Weet je zeker dat je deze terugbetaling wilt verwijderen?')) {
-        repayments = repayments.filter(repayment => repayment.id !== id);
-        saveToLocalStorage();
-        updateRepaymentsList();
-        updateDashboard();
-    }
-}
-
-// Make a payment towards a debt
-function makePayment(debtId) {
-    const debt = debts.find(debt => debt.id === debtId);
-    if (!debt) return;
-    
-    const amount = parseFloat(prompt('Hoeveel wilt je betalen?'));
-    if (isNaN(amount) || amount <= 0) {
-        alert('Voer een geldig bedrag in.');
-        return;
-    }
-    
-    if (amount > debt.amount - debt.paid) {
-        alert('Je kunt niet meer betalen dan de openstaande schuld.');
-        return;
-    }
-    
-    debt.paid += amount;
-    saveToLocalStorage();
-    updateDebtsList();
-    updateDashboard();
-}
-
-// Mark a repayment as paid
-function markAsPaid(repaymentId) {
-    const repayment = repayments.find(repayment => repayment.id === repaymentId);
-    if (!repayment) return;
-    
-    if (confirm('Weet je zeker dat je deze terugbetaling als betaald wilt markeren?')) {
-        repayments = repayments.filter(repayment => repayment.id !== repaymentId);
-        saveToLocalStorage();
-        updateRepaymentsList();
-        updateDashboard();
-    }
-}
-
-// Mark an expense as paid
-function markExpenseAsPaid(expenseId) {
-    const expense = expenses.find(expense => expense.id === expenseId);
-    if (!expense) return;
-    
-    if (confirm('Weet je zeker dat je deze uitgave als betaald wilt markeren?')) {
-        expense.paymentStatus = 'paid';
-        saveToLocalStorage();
-        updateExpenseTable();
-        updateDashboard();
-    }
-}
-
-// Get category name from ID
-function getCategoryName(id) {
-    let category = categories.income.find(cat => cat.id === id) || categories.expense.find(cat => cat.id === id);
-    return category ? category.name : 'Onbekend';
-}
-
-// Get payment method name from ID
-function getPaymentMethodName(id) {
-    switch(id) {
-        case 'cash':
-            return 'Contant';
-        case 'creditcard':
-            return 'Creditkaart';
-        case 'debitcard':
-            return 'Debitkaart';
-        case 'banktransfer':
-            return 'Bankoverschrijving';
-        case 'paypal':
-            return 'PayPal';
-        case 'other':
-            return 'Anders';
-        default:
-            return 'Onbekend';
-    }
-}
-
-// Format date
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('nl-NL');
-}
-
-// Save data to local storage
-function saveToLocalStorage() {
-    localStorage.setItem('finsight_incomes', JSON.stringify(incomes));
-    localStorage.setItem('finsight_expenses', JSON.stringify(expenses));
-    localStorage.setItem('finsight_budgets', JSON.stringify(budgets));
-    localStorage.setItem('finsight_goals', JSON.stringify(goals));
-    localStorage.setItem('finsight_debts', JSON.stringify(debts));
-    localStorage.setItem('finsight_repayments', JSON.stringify(repayments));
-    localStorage.setItem('finsight_categories', JSON.stringify(categories));
-    localStorage.setItem('finsight_monthClosures', JSON.stringify(monthClosures));
-}
-
-// Load data from local storage
-function loadFromLocalStorage() {
-    incomes = JSON.parse(localStorage.getItem('finsight_incomes')) || [];
-    expenses = JSON.parse(localStorage.getItem('finsight_expenses')) || [];
-    budgets = JSON.parse(localStorage.getItem('finsight_budgets')) || [];
-    goals = JSON.parse(localStorage.getItem('finsight_goals')) || [];
-    debts = JSON.parse(localStorage.getItem('finsight_debts')) || [];
-    repayments = JSON.parse(localStorage.getItem('finsight_repayments')) || [];
-    categories = JSON.parse(localStorage.getItem('finsight_categories')) || {
-        income: [
-            { id: 'salary', name: 'Salaris', description: '', icon: '' },
-            { id: 'freelance', name: 'Freelance', description: '', icon: '' },
-            { id: 'investment', name: 'Investeringen', description: '', icon: '' },
-            { id: 'gift', name: 'Geschenken', description: '', icon: '' },
-            { id: 'other', name: 'Overige', description: '', icon: '' }
-        ],
-        expense: [
-            { id: 'groceries', name: 'Boodschappen', description: '', icon: '' },
-            { id: 'rent', name: 'Huur', description: '', icon: '' },
-            { id: 'utilities', name: 'Nutsvoorzieningen', description: '', icon: '' },
-            { id: 'transport', name: 'Vervoer', description: '', icon: '' },
-            { id: 'entertainment', name: 'Entertainment', description: '', icon: '' },
-            { id: 'healthcare', name: 'Gezondheidszorg', description: '', icon: '' },
-            { id: 'education', name: 'Onderwijs', description: '', icon: '' },
-            { id: 'other', name: 'Overige', description: '', icon: '' }
-        ]
-    };
-    monthClosures = JSON.parse(localStorage.getItem('finsight_monthClosures')) || [];
-}
-
-                <button class="delete-btn" onclick="deleteBudget(${budget.id})"><i class="fas fa-trash"></i> Verwijderen</button>
-            </div>
-        `;
-        container.appendChild(budgetCard);
-    });
-}
-
-// Update goals list
-function updateGoalsList() {
-    const container = document.getElementById('goals-list');
+    if (!container) return;
     
     if (goals.length === 0) {
         container.innerHTML = '<p class="no-data">Geen spaardoelen ingesteld</p>';
@@ -1689,10 +907,15 @@ function updateDashboard() {
     const totalSavings = goals.reduce((total, goal) => total + goal.saved, 0);
     
     // Update summary cards
-    document.getElementById('total-income').textContent = `€${totalIncome.toFixed(2)}`;
-    document.getElementById('total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
-    document.getElementById('current-balance').textContent = `€${balance.toFixed(2)}`;
-    document.getElementById('total-savings').textContent = `€${totalSavings.toFixed(2)}`;
+    const totalIncomeElement = document.getElementById('total-income');
+    const totalExpensesElement = document.getElementById('total-expenses');
+    const currentBalanceElement = document.getElementById('current-balance');
+    const totalSavingsElement = document.getElementById('total-savings');
+    
+    if (totalIncomeElement) totalIncomeElement.textContent = `€${totalIncome.toFixed(2)}`;
+    if (totalExpensesElement) totalExpensesElement.textContent = `€${totalExpenses.toFixed(2)}`;
+    if (currentBalanceElement) currentBalanceElement.textContent = `€${balance.toFixed(2)}`;
+    if (totalSavingsElement) totalSavingsElement.textContent = `€${totalSavings.toFixed(2)}`;
     
     // Update recent transactions
     updateRecentTransactions();
@@ -1707,6 +930,8 @@ function updateDashboard() {
 // Update month closures on dashboard
 function updateMonthClosures() {
     const container = document.getElementById('closures-list');
+    
+    if (!container) return;
     
     if (monthClosures.length === 0) {
         container.innerHTML = '<p class="no-data">Geen maandafsluitingen gevonden</p>';
@@ -1739,6 +964,8 @@ function updateMonthClosures() {
 // Update recent transactions
 function updateRecentTransactions() {
     const container = document.getElementById('recent-transactions-list');
+    
+    if (!container) return;
     
     // Combine and sort all transactions
     const allTransactions = [
@@ -1781,82 +1008,89 @@ function updateCharts() {
     }
     
     // Get period from selector
-    const period = document.getElementById('dashboard-period').value;
+    const dashboardPeriod = document.getElementById('dashboard-period');
+    const period = dashboardPeriod ? dashboardPeriod.value : 'month';
     
     // Prepare data for income vs expense chart
     const incomeExpenseData = getIncomeExpenseData(period);
     
     // Create income vs expense chart
-    const incomeExpenseCtx = document.getElementById('income-expense-chart').getContext('2d');
-    window.incomeExpenseChart = new Chart(incomeExpenseCtx, {
-        type: 'bar',
-        data: {
-            labels: incomeExpenseData.labels,
-            datasets: [
-                {
-                    label: 'Inkomsten',
-                    data: incomeExpenseData.incomes,
-                    backgroundColor: 'rgba(56, 182, 255, 0.7)',
-                    borderColor: 'rgba(56, 182, 255, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Uitgaven',
-                    data: incomeExpenseData.expenses,
-                    backgroundColor: 'rgba(247, 37, 133, 0.7)',
-                    borderColor: 'rgba(247, 37, 133, 1)',
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '€' + value;
+    const incomeExpenseCanvas = document.getElementById('income-expense-chart');
+    if (incomeExpenseCanvas) {
+        const incomeExpenseCtx = incomeExpenseCanvas.getContext('2d');
+        window.incomeExpenseChart = new Chart(incomeExpenseCtx, {
+            type: 'bar',
+            data: {
+                labels: incomeExpenseData.labels,
+                datasets: [
+                    {
+                        label: 'Inkomsten',
+                        data: incomeExpenseData.incomes,
+                        backgroundColor: 'rgba(56, 182, 255, 0.7)',
+                        borderColor: 'rgba(56, 182, 255, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Uitgaven',
+                        data: incomeExpenseData.expenses,
+                        backgroundColor: 'rgba(247, 37, 133, 0.7)',
+                        borderColor: 'rgba(247, 37, 133, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '€' + value;
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
     
     // Prepare data for expense category chart
     const expenseCategoryData = getExpenseCategoryData();
     
     // Create expense category chart
-    const expenseCategoryCtx = document.getElementById('expense-category-chart').getContext('2d');
-    window.expenseCategoryChart = new Chart(expenseCategoryCtx, {
-        type: 'doughnut',
-        data: {
-            labels: expenseCategoryData.labels,
-            datasets: [{
-                data: expenseCategoryData.values,
-                backgroundColor: [
-                    '#4361ee',
-                    '#3a0ca3',
-                    '#4cc9f0',
-                    '#f72585',
-                    '#7209b7',
-                    '#3f37c9',
-                    '#4895ef',
-                    '#4cc9f0'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+    const expenseCategoryCanvas = document.getElementById('expense-category-chart');
+    if (expenseCategoryCanvas) {
+        const expenseCategoryCtx = expenseCategoryCanvas.getContext('2d');
+        window.expenseCategoryChart = new Chart(expenseCategoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: expenseCategoryData.labels,
+                datasets: [{
+                    data: expenseCategoryData.values,
+                    backgroundColor: [
+                        '#4361ee',
+                        '#3a0ca3',
+                        '#4cc9f0',
+                        '#f72585',
+                        '#7209b7',
+                        '#3f37c9',
+                        '#4895ef',
+                        '#4cc9f0'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 }
 
 // Get income vs expense data for chart
@@ -2008,15 +1242,25 @@ function updateReports() {
         (budgets.reduce((total, budget) => total + Math.min(100, (budget.used / budget.amount) * 100), 0) / budgets.length).toFixed(1) : 0;
     
     // Update report elements
-    document.getElementById('report-total-income').textContent = `€${totalIncome.toFixed(2)}`;
-    document.getElementById('report-total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
-    document.getElementById('report-net-result').textContent = `€${netResult.toFixed(2)}`;
-    document.getElementById('highest-expense-category').textContent = highestCategory || '-';
-    document.getElementById('avg-monthly-expenses').textContent = `€${avgMonthlyExpenses.toFixed(2)}`;
-    document.getElementById('most-common-expenses').textContent = mostCommonExpense || '-';
-    document.getElementById('budgets-within-limit').textContent = withinLimit;
-    document.getElementById('budgets-exceeded').textContent = exceeded;
-    document.getElementById('avg-budget-compliance').textContent = `${avgCompliance}%`;
+    const reportTotalIncome = document.getElementById('report-total-income');
+    const reportTotalExpenses = document.getElementById('report-total-expenses');
+    const reportNetResult = document.getElementById('report-net-result');
+    const highestExpenseCategory = document.getElementById('highest-expense-category');
+    const avgMonthlyExpensesElement = document.getElementById('avg-monthly-expenses');
+    const mostCommonExpenses = document.getElementById('most-common-expenses');
+    const budgetsWithinLimit = document.getElementById('budgets-within-limit');
+    const budgetsExceeded = document.getElementById('budgets-exceeded');
+    const avgBudgetCompliance = document.getElementById('avg-budget-compliance');
+    
+    if (reportTotalIncome) reportTotalIncome.textContent = `€${totalIncome.toFixed(2)}`;
+    if (reportTotalExpenses) reportTotalExpenses.textContent = `€${totalExpenses.toFixed(2)}`;
+    if (reportNetResult) reportNetResult.textContent = `€${netResult.toFixed(2)}`;
+    if (highestExpenseCategory) highestExpenseCategory.textContent = highestCategory || '-';
+    if (avgMonthlyExpensesElement) avgMonthlyExpensesElement.textContent = `€${avgMonthlyExpenses.toFixed(2)}`;
+    if (mostCommonExpenses) mostCommonExpenses.textContent = mostCommonExpense || '-';
+    if (budgetsWithinLimit) budgetsWithinLimit.textContent = withinLimit;
+    if (budgetsExceeded) budgetsExceeded.textContent = exceeded;
+    if (avgBudgetCompliance) avgBudgetCompliance.textContent = `${avgCompliance}%`;
     
     // Update trend analysis chart
     updateTrendChart();
@@ -2030,58 +1274,62 @@ function updateTrendChart() {
     }
     
     // Get period from selector
-    const period = document.getElementById('report-period').value;
+    const reportPeriod = document.getElementById('report-period');
+    const period = reportPeriod ? reportPeriod.value : 'year';
     
     // Prepare data for trend chart
     const trendData = getTrendData(period);
     
     // Create trend analysis chart
-    const trendCtx = document.getElementById('trend-analysis-chart').getContext('2d');
-    window.trendAnalysisChart = new Chart(trendCtx, {
-        type: 'line',
-        data: {
-            labels: trendData.labels,
-            datasets: [
-                {
-                    label: 'Inkomsten',
-                    data: trendData.incomes,
-                    borderColor: 'rgba(56, 182, 255, 1)',
-                    backgroundColor: 'rgba(56, 182, 255, 0.2)',
-                    fill: true,
-                    tension: 0.3
-                },
-                {
-                    label: 'Uitgaven',
-                    data: trendData.expenses,
-                    borderColor: 'rgba(247, 37, 133, 1)',
-                    backgroundColor: 'rgba(247, 37, 133, 0.2)',
-                    fill: true,
-                    tension: 0.3
-                },
-                {
-                    label: 'Saldo',
-                    data: trendData.balances,
-                    borderColor: 'rgba(67, 97, 238, 1)',
-                    backgroundColor: 'rgba(67, 97, 238, 0.2)',
-                    fill: true,
-                    tension: 0.3
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '€' + value;
+    const trendCanvas = document.getElementById('trend-analysis-chart');
+    if (trendCanvas) {
+        const trendCtx = trendCanvas.getContext('2d');
+        window.trendAnalysisChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendData.labels,
+                datasets: [
+                    {
+                        label: 'Inkomsten',
+                        data: trendData.incomes,
+                        borderColor: 'rgba(56, 182, 255, 1)',
+                        backgroundColor: 'rgba(56, 182, 255, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Uitgaven',
+                        data: trendData.expenses,
+                        borderColor: 'rgba(247, 37, 133, 1)',
+                        backgroundColor: 'rgba(247, 37, 133, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Saldo',
+                        data: trendData.balances,
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '€' + value;
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 }
 
 // Get trend data for chart
@@ -2267,7 +1515,6 @@ function deleteIncome(id) {
         alert('Er is een fout opgetreden bij het verwijderen van de inkomst.');
     }
 }
-}
 
 function editExpense(id) {
     alert('Bewerken functie nog niet geïmplementeerd');
@@ -2312,6 +1559,30 @@ function deleteExpense(id) {
 function editBudget(id) {
     alert('Bewerken functie nog niet geïmplementeerd');
 }
+
+function deleteBudget(id) {
+    try {
+        if (confirm('Weet je zeker dat je dit budget wilt verwijderen?')) {
+            // Ensure id is a number
+            const budgetId = Number(id);
+            
+            // Validate that we have a valid number
+            if (isNaN(budgetId)) {
+                console.error('Invalid budget ID:', id);
+                alert('Er is een fout opgetreden bij het verwijderen van het budget.');
+                return;
+            }
+            
+            // Filter out the budget with the matching id
+            const originalLength = budgets.length;
+            budgets = budgets.filter(budget => Number(budget.id) !== budgetId);
+            
+            // Check if an item was actually removed
+            if (budgets.length === originalLength) {
+                console.warn('No budget found with ID:', budgetId);
+            }
+            
+            // Save to localStorage
             saveToLocalStorage();
             
             // Update the UI
@@ -2393,7 +1664,7 @@ function deleteDebt(id) {
             saveToLocalStorage();
             
             // Update the UI
-            updateDebtTable();
+            updateDebtsList();
             updateDashboard();
         }
     } catch (error) {
@@ -2507,6 +1778,38 @@ function markAsPaid(id) {
 function editRepayment(id) {
     alert('Bewerken functie nog niet geïmplementeerd');
 }
+
+function deleteRepayment(id) {
+    try {
+        if (confirm('Weet je zeker dat je deze terugbetaling wilt verwijderen?')) {
+            // Ensure id is a number
+            const repaymentId = Number(id);
+            
+            // Validate that we have a valid number
+            if (isNaN(repaymentId)) {
+                console.error('Invalid repayment ID:', id);
+                alert('Er is een fout opgetreden bij het verwijderen van de terugbetaling.');
+                return;
+            }
+            
+            // Filter out the repayment with the matching id
+            const originalLength = repayments.length;
+            repayments = repayments.filter(repayment => Number(repayment.id) !== repaymentId);
+            
+            // Check if an item was actually removed
+            if (repayments.length === originalLength) {
+                console.warn('No repayment found with ID:', repaymentId);
+            }
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update the UI
+            updateRepaymentsList();
+            updateDashboard();
+        }
+    } catch (error) {
+        console.error('Error deleting repayment:', error);
         alert('Er is een fout opgetreden bij het verwijderen van de terugbetaling.');
     }
 }
@@ -2550,3 +1853,5 @@ function loadFromLocalStorage() {
     const storedMonthClosures = localStorage.getItem('finsight_monthClosures');
     if (storedMonthClosures) monthClosures = JSON.parse(storedMonthClosures);
 }
+
+// End of script
