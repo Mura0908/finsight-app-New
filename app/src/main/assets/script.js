@@ -401,7 +401,11 @@ function editCategory(id, type) {
         toggleForm(document.getElementById('category-form-container'));
         
         // Restore original submit handler
-        categoryForm.onsubmit = handleCategorySubmit;
+        setTimeout(() => {
+            categoryForm.onsubmit = handleCategorySubmit;
+        }, 100);
+        
+        return false;
     };
 }
 

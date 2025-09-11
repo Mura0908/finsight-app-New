@@ -34,6 +34,7 @@ body {
     flex-direction: column;
     min-height: 100vh;
     max-width: 100%;
+    overflow-x: hidden;
 }
 
 /* Header Styles */
@@ -99,6 +100,13 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .app-main {
+        padding: 1rem;
+    }
 }
 
 .section-header {
@@ -859,6 +867,8 @@ body {
 .category-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 500px;
 }
 
 .category-table th,
@@ -868,14 +878,75 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
+.category-table th:first-child,
+.category-table td:first-child {
+    width: 25%;
+}
+
+.category-table th:nth-child(2),
+.category-table td:nth-child(2) {
+    width: 35%;
+}
+
+.category-table th:nth-child(3),
+.category-table td:nth-child(3) {
+    width: 20%;
+}
+
+.category-table th:nth-child(4),
+.category-table td:nth-child(4) {
+    width: 20%;
+}
+
 .category-table th {
     background-color: var(--light-gray);
     font-weight: 600;
     color: var(--dark-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.category-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .category-table tbody tr:hover {
     background-color: rgba(67, 97, 238, 0.05);
+}
+
+@media (max-width: 768px) {
+    .category-table {
+        min-width: 400px;
+    }
+    
+    .category-table th,
+    .category-table td {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .category-table th:first-child,
+    .category-table td:first-child {
+        width: 30%;
+    }
+    
+    .category-table th:nth-child(2),
+    .category-table td:nth-child(2) {
+        width: 40%;
+    }
+    
+    .category-table th:nth-child(3),
+    .category-table td:nth-child(3) {
+        width: 15%;
+    }
+    
+    .category-table th:nth-child(4),
+    .category-table td:nth-child(4) {
+        width: 15%;
+    }
 }
 
 .category-actions {

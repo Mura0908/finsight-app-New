@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with app name and navigation -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Category Test</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-tab="categories">
+                        <i class="fas fa-tags"></i>
+                        <span>Categorieën</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <!-- Categories Tab -->
+            <section id="categories" class="tab-content active">
+                <div class="section-header">
+                    <h2>Categorieën beheren</h2>
+                    <button id="add-category-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Nieuwe categorie
+                    </button>
+                </div>
+
+                <div class="categories-management">
+                    <div class="category-form-section">
+                        <h3>Categorie toevoegen/bewerken</h3>
+                        <div class="form-container" id="category-form-container">
+                            <form id="category-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="category-name">Categorie naam</label>
+                                        <input type="text" id="category-name" placeholder="Bijv. Horeca, Kleding" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category-type">Type</label>
+                                        <select id="category-type" required>
+                                            <option value="income">Inkomsten</option>
+                                            <option value="expense">Uitgaven</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="category-description">Beschrijving</label>
+                                        <textarea id="category-description" placeholder="Optionele beschrijving van de categorie"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category-icon">Icoon (optioneel)</label>
+                                        <select id="category-icon">
+                                            <option value="">Geen icoon</option>
+                                            <option value="fas fa-shopping-cart">Winkelwagen</option>
+                                            <option value="fas fa-home">Huis</option>
+                                            <option value="fas fa-car">Auto</option>
+                                            <option value="fas fa-utensils">Bestek</option>
+                                            <option value="fas fa-film">Film</option>
+                                            <option value="fas fa-heart">Hart</option>
+                                            <option value="fas fa-graduation-cap">Diploma</option>
+                                            <option value="fas fa-plane">Vliegtuig</option>
+                                            <option value="fas fa-tshirt">T-shirt</option>
+                                            <option value="fas fa-mobile-alt">Telefoon</option>
+                                            <option value="fas fa-gas-pump">Benzine</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" id="cancel-category-btn" class="btn-secondary">Annuleren</button>
+                                    <button type="submit" class="btn-primary">Categorie opslaan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="category-tables-section">
+                        <div class="category-table-container">
+                            <h3>Inkomsten categorieën</h3>
+                            <table class="category-table" id="income-categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Naam</th>
+                                        <th>Beschrijving</th>
+                                        <th>Icoon</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="income-categories-table-body">
+                                    <tr>
+                                        <td colspan="4" class="no-data">Geen inkomsten categorieën gevonden</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="category-table-container">
+                            <h3>Uitgaven categorieën</h3>
+                            <table class="category-table" id="expense-categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Naam</th>
+                                        <th>Beschrijving</th>
+                                        <th>Icoon</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expense-categories-table-body">
+                                    <tr>
+                                        <td colspan="4" class="no-data">Geen uitgaven categorieën gevonden</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Sample category data
+        let categories = {
+            income: [
+                { id: 'salary', name: 'Salaris', description: 'Maandelijkse salaris', icon: 'fas fa-wallet' },
+                { id: 'freelance', name: 'Freelance', description: 'Freelance werk', icon: 'fas fa-laptop' }
+            ],
+            expense: [
+                { id: 'groceries', name: 'Boodschappen', description: 'Wekelijkse boodschappen', icon: 'fas fa-shopping-cart' },
+                { id: 'rent', name: 'Huur', description: 'Maandelijkse huur', icon: 'fas fa-home' }
+            ]
+        };
+
+        // Function to update category tables
+        function updateCategoriesTable() {
+            // Update income categories table
+            const incomeTbody = document.getElementById('income-categories-table-body');
+            if (incomeTbody) {
+                if (categories.income.length === 0) {
+                    incomeTbody.innerHTML = '<tr><td colspan="4" class="no-data">Geen inkomsten categorieën gevonden</td></tr>';
+                } else {
+                    incomeTbody.innerHTML = '';
+                    categories.income.forEach(category => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${category.name}</td>
+                            <td>${category.description || '-'}</td>
+                            <td>${category.icon ? `<i class="${category.icon}"></i>` : '-'}</td>
+                            <td>
+                                <button class="edit-btn" onclick="editCategory('${category.id}', 'income')"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="deleteCategory('${category.id}', 'income')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        incomeTbody.appendChild(row);
+                    });
+                }
+            }
+            
+            // Update expense categories table
+            const expenseTbody = document.getElementById('expense-categories-table-body');
+            if (expenseTbody) {
+                if (categories.expense.length === 0) {
+                    expenseTbody.innerHTML = '<tr><td colspan="4" class="no-data">Geen uitgaven categorieën gevonden</td></tr>';
+                } else {
+                    expenseTbody.innerHTML = '';
+                    categories.expense.forEach(category => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${category.name}</td>
+                            <td>${category.description || '-'}</td>
+                            <td>${category.icon ? `<i class="${category.icon}"></i>` : '-'}</td>
+                            <td>
+                                <button class="edit-btn" onclick="editCategory('${category.id}', 'expense')"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="deleteCategory('${category.id}', 'expense')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        expenseTbody.appendChild(row);
+                    });
+                }
+            }
+        }
+
+        // Function to edit category
+        function editCategory(id, type) {
+            const category = categories[type].find(cat => cat.id === id);
+            if (!category) return;
+            
+            // Fill the form with category data
+            document.getElementById('category-name').value = category.name;
+            document.getElementById('category-type').value = type;
+            document.getElementById('category-description').value = category.description || '';
+            document.getElementById('category-icon').value = category.icon || '';
+            
+            // Show the category form
+            document.getElementById('category-form-container').classList.add('active');
+        }
+
+        // Function to delete category
+        function deleteCategory(id, type) {
+            if (confirm('Weet je zeker dat je deze categorie wilt verwijderen?')) {
+                categories[type] = categories[type].filter(cat => cat.id !== id);
+                updateCategoriesTable();
+            }
+        }
+
+        // Function to toggle form visibility
+        function toggleForm(formContainer) {
+            if (formContainer) {
+                formContainer.classList.toggle('active');
+            }
+        }
+
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add category button
+            document.getElementById('add-category-btn').addEventListener('click', function() {
+                document.getElementById('category-form').reset();
+                toggleForm(document.getElementById('category-form-container'));
+            });
+            
+            // Cancel category button
+            document.getElementById('cancel-category-btn').addEventListener('click', function() {
+                toggleForm(document.getElementById('category-form-container'));
+            });
+            
+            // Category form submission
+            document.getElementById('category-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Categorie opgeslagen!');
+                toggleForm(document.getElementById('category-form-container'));
+            });
+            
+            // Initialize category tables
+            updateCategoriesTable();
+        });
+    </script>
+</body>
+</html>
