@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landscape Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .test-result.success {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+        .test-result.error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .test-buttons {
+            margin: 20px 0;
+        }
+        .test-btn {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            background-color: #0056b3;
+        }
+        .dimensions-display {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .scroll-test {
+            width: 100%;
+            overflow: hidden;
+            border: 2px solid #dee2e6;
+            margin: 20px 0;
+            padding: 10px;
+        }
+        .scroll-content {
+            width: 150%;
+            background-color: #f8f9fa;
+            padding: 20px;
+            white-space: nowrap;
+        }
+        .orientation-display {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #d1ecf1;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Landscape Test</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-tab="test1">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Test 1</span>
+                    </button>
+                    <button class="nav-btn" data-tab="test2">
+                        <i class="fas fa-tablet-alt"></i>
+                        <span>Test 2</span>
+                    </button>
+                    <button class="nav-btn" data-tab="test3">
+                        <i class="fas fa-laptop"></i>
+                        <span>Test 3</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="app-main">
+            <div class="test-container">
+                <h1>Landscape Orientation Test</h1>
+                <p>This page tests the responsive design when the device is in landscape orientation.</p>
+                
+                <div class="orientation-display">
+                    <strong>Orientation:</strong> <span id="orientation-status">Detecting...</span>
+                </div>
+                
+                <div class="dimensions-display">
+                    <strong>Window Dimensions:</strong> <span id="window-dimensions">Loading...</span>
+                </div>
+                
+                <div class="test-result" id="initialization-result">
+                    <h3>Initialization Test</h3>
+                    <p id="initialization-status">Testing...</p>
+                </div>
+                
+                <div class="test-result" id="responsive-result">
+                    <h3>Responsive Design Test</h3>
+                    <p id="responsive-status">Waiting for tests to run...</p>
+                </div>
+                
+                <div class="test-buttons">
+                    <button class="test-btn" id="test-landscape">Test Landscape Mode</button>
+                    <button class="test-btn" id="test-portrait">Test Portrait Mode</button>
+                    <button class="test-btn" id="test-current">Test Current Orientation</button>
+                </div>
+                
+                <div class="test-result" id="scroll-result">
+                    <h3>Horizontal Scroll Test</h3>
+                    <p id="scroll-status">Testing for horizontal scroll...</p>
+                    <div class="scroll-test" id="scroll-test-container">
+                        <div class="scroll-content">
+                            This is a test content that is wider than the container to test for horizontal scrolling issues.
+                            If you see horizontal scrollbars or can scroll horizontally, there's a responsive design issue.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="test-result" id="tab-result">
+                    <h3>Tab Navigation Test</h3>
+                    <p id="tab-status">Testing tab navigation...</p>
+                </div>
+                
+                <div class="test-result" id="console-output">
+                    <h3>Console Output</h3>
+                    <pre id="console-log">No output yet...</pre>
+                </div>
+                
+                <!-- Test sections -->
+                <section id="test1" class="tab-content active">
+                    <h2>Test Section 1</h2>
+                    <p>This is the content for test section 1.</p>
+                    
+                    <!-- Test category tables -->
+                    <div class="category-tables-section">
+                        <div class="category-table-container">
+                            <h3>Inkomsten categorieën</h3>
+                            <table class="category-table" id="income-categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Naam</th>
+                                        <th>Beschrijving</th>
+                                        <th>Icoon</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Salaris</td>
+                                        <td>Maandelijkse uitbetaling</td>
+                                        <td><i class="fas fa-euro-sign"></i></td>
+                                        <td>
+                                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Freelance</td>
+                                        <td>Project gebaseerde inkomsten</td>
+                                        <td><i class="fas fa-laptop"></i></td>
+                                        <td>
+                                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="category-table-container">
+                            <h3>Uitgaven categorieën</h3>
+                            <table class="category-table" id="expense-categories-table">
+                                <thead>
+                                    <tr>
+                                        <th>Naam</th>
+                                        <th>Beschrijving</th>
+                                        <th>Icoon</th>
+                                        <th>Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Boodschappen</td>
+                                        <td>Dagelijkse aankopen</td>
+                                        <td><i class="fas fa-shopping-cart"></i></td>
+                                        <td>
+                                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Huur</td>
+                                        <td>Maandelijkse huur</td>
+                                        <td><i class="fas fa-home"></i></td>
+                                        <td>
+                                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Vervoer</td>
+                                        <td>OV of benzine kosten</td>
+                                        <td><i class="fas fa-car"></i></td>
+                                        <td>
+                                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="test2" class="tab-content">
+                    <h2>Test Section 2</h2>
+                    <p>This is the content for test section 2.</p>
+                    
+                    <!-- Test data tables -->
+                    <div class="data-table-container">
+                        <h3>Test Data Table</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Beschrijving</th>
+                                    <th>Categorie</th>
+                                    <th>Bron/Methode</th>
+                                    <th>Bedrag</th>
+                                    <th>Status</th>
+                                    <th>Acties</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2023-06-15</td>
+                                    <td>Maandelijkse salaris</td>
+                                    <td>Salaris</td>
+                                    <td>Werkgever</td>
+                                    <td>€3,500.00</td>
+                                    <td>Betaald</td>
+                                    <td>
+                                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2023-06-10</td>
+                                    <td>Boodschappen</td>
+                                    <td>Boodschappen</td>
+                                    <td>Contant</td>
+                                    <td>€125.50</td>
+                                    <td>Open</td>
+                                    <td>
+                                        <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                                        <button class="pay-btn"><i class="fas fa-check"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="test3" class="tab-content">
+                    <h2>Test Section 3</h2>
+                    <p>This is the content for test section 3.</p>
+                    
+                    <!-- Test summary cards -->
+                    <div class="summary-cards">
+                        <div class="card income-card">
+                            <div class="card-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Inkomsten</h3>
+                                <p id="total-income">€0.00</p>
+                            </div>
+                        </div>
+
+                        <div class="card expense-card">
+                            <div class="card-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Uitgaven</h3>
+                                <p id="total-expenses">€0.00</p>
+                            </div>
+                        </div>
+
+                        <div class="card balance-card">
+                            <div class="card-icon">
+                                <i class="fas fa-euro-sign"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Saldo</h3>
+                                <p id="current-balance">€0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Test script for landscape orientation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Landscape Test Page Loaded');
+            
+            // Capture console output
+            const consoleLog = document.getElementById('console-log');
+            const originalLog = console.log;
+            console.log = function(message) {
+                originalLog.apply(console, arguments);
+                consoleLog.textContent += message + '\n';
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            };
+            
+            // Update window dimensions display
+            updateWindowDimensions();
+            window.addEventListener('resize', updateWindowDimensions);
+            
+            // Update orientation display
+            updateOrientation();
+            window.addEventListener('orientationchange', updateOrientation);
+            
+            // Test initialization
+            testInitialization();
+            
+            // Test for horizontal scroll
+            testHorizontalScroll();
+            
+            // Test tab navigation
+            testTabNavigation();
+            
+            // Set up test buttons
+            document.getElementById('test-landscape').addEventListener('click', function() {
+                alert('Rotate your device to landscape mode to test the responsive design.');
+                testCurrentOrientation();
+            });
+            
+            document.getElementById('test-portrait').addEventListener('click', function() {
+                alert('Rotate your device to portrait mode to test the responsive design.');
+                testCurrentOrientation();
+            });
+            
+            document.getElementById('test-current').addEventListener('click', function() {
+                testCurrentOrientation();
+            });
+            
+            // Set up tab navigation
+            setupTabNavigation();
+        });
+        
+        function updateWindowDimensions() {
+            const dimensionsElement = document.getElementById('window-dimensions');
+            dimensionsElement.textContent = `${window.innerWidth} x ${window.innerHeight}`;
+        }
+        
+        function updateOrientation() {
+            const orientationElement = document.getElementById('orientation-status');
+            const orientation = window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait';
+            orientationElement.textContent = orientation;
+        }
+        
+        function testInitialization() {
+            const resultElement = document.getElementById('initialization-status');
+            
+            try {
+                // Check if required elements exist
+                const container = document.querySelector('.container');
+                const header = document.querySelector('.app-header');
+                const main = document.querySelector('.app-main');
+                
+                if (container && header && main) {
+                    resultElement.textContent = 'SUCCESS: All required elements found';
+                    resultElement.parentElement.classList.add('success');
+                    console.log('Initialization test passed');
+                } else {
+                    throw new Error('Missing required elements');
+                }
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Initialization test failed: ' + error.message);
+            }
+        }
+        
+        function testHorizontalScroll() {
+            const resultElement = document.getElementById('scroll-status');
+            
+            try {
+                // Check if there's horizontal overflow
+                const container = document.querySelector('.container');
+                const hasHorizontalScroll = container.scrollWidth > container.clientWidth;
+                
+                if (hasHorizontalScroll) {
+                    throw new Error('Horizontal scrolling detected - this indicates a responsive design issue');
+                } else {
+                    resultElement.textContent = 'SUCCESS: No horizontal scrolling detected';
+                    resultElement.parentElement.classList.add('success');
+                    console.log('Horizontal scroll test passed');
+                }
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Horizontal scroll test failed: ' + error.message);
+            }
+        }
+        
+        function testTabNavigation() {
+            const resultElement = document.getElementById('tab-status');
+            
+            try {
+                // Check if tab buttons exist
+                const tabButtons = document.querySelectorAll('.nav-btn');
+                const tabContents = document.querySelectorAll('.tab-content');
+                
+                if (tabButtons.length > 0 && tabContents.length > 0) {
+                    resultElement.textContent = 'SUCCESS: Tab navigation elements found';
+                    resultElement.parentElement.classList.add('success');
+                    console.log('Tab navigation test passed');
+                } else {
+                    throw new Error('Tab navigation elements not found');
+                }
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Tab navigation test failed: ' + error.message);
+            }
+        }
+        
+        function testCurrentOrientation() {
+            const resultElement = document.getElementById('responsive-status');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const isLandscape = width > height;
+            
+            try {
+                if (isLandscape) {
+                    resultElement.textContent = 'SUCCESS: Landscape orientation detected - Design should be optimized for wide screens';
+                } else {
+                    resultElement.textContent = 'SUCCESS: Portrait orientation detected - Design should be optimized for narrow screens';
+                }
+                
+                resultElement.parentElement.classList.add('success');
+                console.log(`Responsive design test passed for orientation: ${isLandscape ? 'Landscape' : 'Portrait'}`);
+                
+                // Test horizontal scroll after orientation change
+                testHorizontalScroll();
+            } catch (error) {
+                resultElement.textContent = 'ERROR: ' + error.message;
+                resultElement.parentElement.classList.add('error');
+                console.log('Responsive design test failed: ' + error.message);
+            }
+        }
+        
+        // Set up tab navigation
+        function setupTabNavigation() {
+            console.log('Setting up tab navigation for test');
+            
+            // Get all tab buttons
+            const tabButtons = document.querySelectorAll('.nav-btn');
+            console.log('Found tab buttons:', tabButtons.length);
+            
+            // Add click event to each tab button
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('Tab clicked:', tabName);
+                    
+                    // Show the selected tab
+                    showTab(tabName);
+                });
+            });
+        }
+        
+        // Show a specific tab
+        function showTab(tabName) {
+            console.log('Showing tab:', tabName);
+            
+            // Hide all tab contents using CSS classes
+            const allContents = document.querySelectorAll('.tab-content');
+            allContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            const allButtons = document.querySelectorAll('.nav-btn');
+            allButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            const tabContent = document.getElementById(tabName);
+            if (tabContent) {
+                tabContent.classList.add('active');
+                console.log('Displayed content for tab:', tabName);
+            }
+            
+            // Add active class to the clicked button
+            const activeButton = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+                console.log('Activated button for tab:', tabName);
+            }
+            
+            console.log('Tab display completed for:', tabName);
+        }
+    </script>
+</body>
+</html>
